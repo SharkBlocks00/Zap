@@ -1,6 +1,9 @@
 from typing import Any
 
-source: str = "let x=5; let y = 10; x = 9;"
+from src.Token import Token
+from src.TokenKind import TokenKind
+
+source: str = "let x=5; let y = 10; x = 9; output(5);"
 
 i: int = 0
 tokens: list[Any] = []
@@ -9,7 +12,6 @@ keywords: list[str] = [
     "let",
     "output",
     "request",
-    "res"
 ]
 
 while i < len(source):
@@ -46,13 +48,13 @@ parsed_tokens: list[Any] = []
 
 for token in tokens:
     if token in keywords:
-        parsed_tokens.append(("KEYWORD", token))
+        parsed_tokens.append(Token(TokenKind.KEYWORD, token))
     elif token.isalpha():
-        parsed_tokens.append(("IDENTIFIER", token))
+        parsed_tokens.append(Token(TokenKind.IDENTIFIER, token))
     elif token in "=;()":
-        parsed_tokens.append(("SYMBOL", token))
+        parsed_tokens.append(Token(TokenKind.SYMBOL, token))
     elif token.isdigit():
-        parsed_tokens.append(("NUMBER", int(token)))
+        parsed_tokens.append(Token(TokenKind.NUMBER, int(token)))
     else:
         raise Exception(f"Unknown token: {token}")
 
