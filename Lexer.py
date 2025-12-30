@@ -1,6 +1,6 @@
 from typing import Any
 
-source: str = "let x=5; let y = 10;"
+source: str = "let x=5; let y = 10; x = 9;"
 
 i: int = 0
 tokens: list[Any] = []
@@ -9,6 +9,7 @@ keywords: list[str] = [
     "let",
     "output",
     "request",
+    "res"
 ]
 
 while i < len(source):
@@ -39,7 +40,7 @@ while i < len(source):
 
     raise Exception(f"Unknown character: {char}")
 
-print(tokens)
+#print(tokens)
 
 parsed_tokens: list[Any] = []
 
@@ -56,4 +57,6 @@ for token in tokens:
         raise Exception(f"Unknown token: {token}")
 
 
-print(parsed_tokens)
+#print(parsed_tokens)
+
+
