@@ -1,9 +1,9 @@
 from typing import Any
 
-from src.Token import Token
-from src.TokenKind import TokenKind
+from Token import Token
+from TokenKind import TokenKind
 
-source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hi";'
+source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hello"; output(x); output(b);'
 
 i: int = 0
 tokens: list[Any] = []
