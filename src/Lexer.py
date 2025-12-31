@@ -3,7 +3,7 @@ from typing import Any
 from src.Token import Token
 from src.TokenKind import TokenKind
 
-source: str = 'let x=5; let y = 10; x = 9; output(50000); let b = "hi";'
+source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hi";'
 
 i: int = 0
 tokens: list[Any] = []

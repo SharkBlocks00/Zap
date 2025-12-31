@@ -1,6 +1,32 @@
+from lib2to3.pgen2.token import NUMBER
+from unittest import expectedFailure
+
 from Lexer import parsed_tokens
-from AST import VarReassignment, VarDeclaration, OutputStatement
+from AST import VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, Identifier
 from src.TokenKind import TokenKind
+
+def parse_expression(tokens, index):
+    return parse_primary(tokens, index)
+
+def parse_primary(tokens, index):
+    token = tokens[index]
+
+    if token.kind == TokenKind.NUMBER:
+        return NumberLiteral(token.value), index + 1
+    if token.kind == TokenKind.STRING:
+        return StringLiteral(token.value), index + 1
+    if token.kind == TokenKind.IDENTIFIER:
+        return Identifier(token.value), index + 1
+
+    if token.kind == TokenKind.SYMBOL and token.value == "(":
+        expr, index = parse_expression(tokens, index + 1)
+
+        if tokens[index].kind != TokenKind.SYMBOL or tokens[index].value != ")":
+            raise Exception("Unexpected token")
+
+        return expr, index + 1
+
+    raise Exception("Unexpected token")
 
 
 def parse_let(tokens, index):
@@ -24,14 +50,7 @@ def parse_let(tokens, index):
         raise Exception("Expected '=' after identifier")
 
     index += 1
-    token = tokens[index]
-    #print(f"Token: {token.kind}")
-    if token.kind != TokenKind.NUMBER and token.kind != TokenKind.STRING:
-        raise Exception("Expected value after '='")
-    token = tokens[index]
-    value = token.value
-    index += 1
-    #print(f"Value: {value}")
+    value, index = parse_expression(tokens, index)
 
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ";":
