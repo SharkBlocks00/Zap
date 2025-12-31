@@ -3,9 +3,30 @@ from AST import BinaryExpression, VarReassignment, VarDeclaration, OutputStateme
 from TokenKind import TokenKind
 
 def parse_expression(tokens, index):
+    return parse_addition(tokens, index)
+
+def parse_addition(tokens, index):
+    left, index = parse_multiplication(tokens, index)
+
+    while (
+        index < len(tokens)
+        and tokens[index].kind == TokenKind.SYMBOL
+        and tokens[index].value in "+-"
+    ):
+        operator = tokens[index].value
+        right, index = parse_multiplication(tokens, index + 1)
+        left = BinaryExpression(left, operator, right)
+
+    return left, index
+
+def parse_multiplication(tokens, index):
     left, index = parse_primary(tokens, index)
 
-    while (index < len(tokens)and tokens[index].kind == TokenKind.SYMBOL and tokens[index].value in "+-*/"):
+    while (
+        index < len(tokens)
+        and tokens[index].kind == TokenKind.SYMBOL
+        and tokens[index].value in "*/"
+    ):
         operator = tokens[index].value
         right, index = parse_primary(tokens, index + 1)
         left = BinaryExpression(left, operator, right)
@@ -114,7 +135,6 @@ def parse_output(tokens, index):
     index += 1
 
     return OutputStatement(output_data), index
-
 
 
 index = 0

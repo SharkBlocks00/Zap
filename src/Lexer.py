@@ -3,7 +3,7 @@ from typing import Any
 from Token import Token
 from TokenKind import TokenKind
 
-source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hello"; output(x); output(b); output(4 + 1); let test = 4 + 2; output(test);'
+source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hello"; output(x); output(b); output(4 + 1); let test = 4 + 2 * 3; output(test);'
 
 i: int = 0
 tokens: list[Any] = []
@@ -12,6 +12,7 @@ keywords: list[str] = [
     "let",
     "output",
     "request",
+    "if"
 ]
 
 while i < len(source):
@@ -49,7 +50,7 @@ while i < len(source):
         tokens.append(("NUMBER", source[start:i]))
         continue
 
-    if char in "=;()+-*/":
+    if char in ["=", ";", "(", ")", "+", "-", "*", "/", "=="]:
         tokens.append(("SYMBOL", char))
         i += 1
         continue
