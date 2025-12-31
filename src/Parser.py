@@ -1,9 +1,17 @@
 from Lexer import parsed_tokens
-from AST import VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, Identifier, Expression
+from AST import BinaryExpression, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, Identifier, Expression
 from TokenKind import TokenKind
 
 def parse_expression(tokens, index):
-    return parse_primary(tokens, index)
+    left, index = parse_primary(tokens, index)
+
+    while (index < len(tokens)and tokens[index].kind == TokenKind.SYMBOL and tokens[index].value in "+-*/"):
+        operator = tokens[index].value
+        right, index = parse_primary(tokens, index + 1)
+        left = BinaryExpression(left, operator, right)
+
+    return left, index
+
 
 def parse_primary(tokens, index):
     token = tokens[index]
@@ -21,7 +29,7 @@ def parse_primary(tokens, index):
         if tokens[index].kind != TokenKind.SYMBOL or tokens[index].value != ")":
             raise Exception("Unexpected token")
 
-        return expr, index + 1
+        return expr, index 
 
     raise Exception("Unexpected token")    
 
@@ -49,6 +57,7 @@ def parse_let(tokens, index):
     value, index = parse_expression(tokens, index)
 
     token = tokens[index]
+    #print(f"Token at end of let: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise Exception("Expected ';' at end of let statement")
 

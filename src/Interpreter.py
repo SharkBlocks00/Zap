@@ -1,5 +1,5 @@
 from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier
+from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression
 
 def eval_expression(expr, environment):
     if isinstance(expr, NumberLiteral):
@@ -10,6 +10,20 @@ def eval_expression(expr, environment):
         if expr.name not in environment:
             raise Exception(f"Undefined variable {expr.name}")
         return environment[expr.name]
+    if isinstance(expr, BinaryExpression):
+        left = eval_expression(expr.left, environment)
+        right = eval_expression(expr.right, environment)
+
+        if expr.operator == "+":
+            return left + right 
+        elif expr.operator == "-":
+            return left - right
+        elif expr.operator == "*":
+            return left * right
+        elif expr.operator == "/":
+            return left / right
+    raise Exception("Unknown operator type")
+
 
 environment = {}
 for node in nodes:

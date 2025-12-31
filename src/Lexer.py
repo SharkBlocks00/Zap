@@ -3,7 +3,7 @@ from typing import Any
 from Token import Token
 from TokenKind import TokenKind
 
-source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hello"; output(x); output(b);'
+source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hello"; output(x); output(b); output(4 + 1); let test = 4 + 2; output(test);'
 
 i: int = 0
 tokens: list[Any] = []
@@ -49,7 +49,7 @@ while i < len(source):
         tokens.append(("NUMBER", source[start:i]))
         continue
 
-    if char in "=;()":
+    if char in "=;()+-*/":
         tokens.append(("SYMBOL", char))
         i += 1
         continue
@@ -74,6 +74,7 @@ for kind, value in tokens:
     else:
         raise Exception(f"Unknown token: {value}")
 
-#print(parsed_tokens)
+#for token in parsed_tokens:
+ #   print(f"TokenKind: {token.kind}, Value: {token.value}")
 
 
