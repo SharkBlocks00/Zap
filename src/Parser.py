@@ -16,18 +16,22 @@ def parse_let(tokens, index):
 
 
     var_name = token.value
+    #print(f"Variable {var_name}")
     index += 1
     token = tokens[index]
+    #print(f"Token: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != "=":
         raise Exception("Expected '=' after identifier")
 
     index += 1
     token = tokens[index]
-    if token.kind != TokenKind.NUMBER:
-        raise Exception("Expected number after '='")
+    #print(f"Token: {token.kind}")
+    if token.kind != TokenKind.NUMBER and token.kind != TokenKind.STRING:
+        raise Exception("Expected value after '='")
     token = tokens[index]
     value = token.value
     index += 1
+    #print(f"Value: {value}")
 
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ";":
@@ -51,8 +55,8 @@ def parse_res(tokens, index):
 
     index += 1
     token = tokens[index]
-    if token.kind != TokenKind.NUMBER:
-        raise Exception("Expected number after '='")
+    if token.kind != TokenKind.NUMBER and token.kind != TokenKind.STRING:
+        raise Exception(f"Expected value after '='. Token: {token.value}, TokenKind: {token.kind}")
 
     value = token.value
     index += 1
@@ -90,7 +94,7 @@ def parse_output(tokens, index):
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise Exception("Expected ';' at end of output statement")
 
-    index += 2
+    index += 1
 
     return OutputStatement(output_data), index
 
@@ -100,12 +104,14 @@ index = 0
 nodes = []
 
 while index < len(parsed_tokens):
-   # print(parsed_tokens[index])
+    #print(f"Parsed tokens: {parsed_tokens}")
+    #print(parsed_tokens[index].kind, parsed_tokens[index].value)
     token = parsed_tokens[index]
     if token.kind == TokenKind.KEYWORD and token.value == "let":
         node, index = parse_let(parsed_tokens, index)
         nodes.append(node)
     elif token.kind == TokenKind.IDENTIFIER:
+       # print(f"Parsed identifier token: {parsed_tokens[index].value}")
         node, index = parse_res(parsed_tokens, index)
         nodes.append(node)
     elif token.kind == TokenKind.KEYWORD and token.value == "output":

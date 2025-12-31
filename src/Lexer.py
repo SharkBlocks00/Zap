@@ -3,7 +3,7 @@ from typing import Any
 from src.Token import Token
 from src.TokenKind import TokenKind
 
-source: str = 'let x=5; let y = 10; x = 9; output(500);'
+source: str = 'let x=5; let y = 10; x = 9; output(50000); let b = "hi";'
 
 i: int = 0
 tokens: list[Any] = []
@@ -22,28 +22,35 @@ while i < len(source):
         continue
 
     if char == '"':
+        i += 1
         start = i
-        while i < len(source) and source[i] == '"':
+
+        while i < len(source) and source[i] != '"':
             i += 1
-        tokens.append(source[start:i])
+
+        if i >= len(source):
+            raise Exception("Unterminated string literal")
+
+        tokens.append(("STRING", source[start:i]))
+        i += 1
         continue
 
     if char.isalpha():
         start = i
         while i < len(source) and source[i].isalpha():
             i += 1
-        tokens.append(source[start:i])
+        tokens.append(("IDENTIFIER", source[start:i]))
         continue
 
     if char.isdigit():
         start = i
         while i < len(source) and source[i].isdigit():
             i += 1
-        tokens.append(source[start:i])
+        tokens.append(("NUMBER", source[start:i]))
         continue
 
     if char in "=;()":
-        tokens.append(char)
+        tokens.append(("SYMBOL", char))
         i += 1
         continue
 
@@ -53,20 +60,19 @@ while i < len(source):
 
 parsed_tokens: list[Any] = []
 
-for token in tokens:
-    if token in keywords:
-        parsed_tokens.append(Token(TokenKind.KEYWORD, token))
-    elif token == '"':
-        parsed_tokens.append(Token(TokenKind.STRING, token))
-    elif token.isalpha():
-        parsed_tokens.append(Token(TokenKind.IDENTIFIER, token))
-    elif token in "=;()":
-        parsed_tokens.append(Token(TokenKind.SYMBOL, token))
-    elif token.isdigit():
-        parsed_tokens.append(Token(TokenKind.NUMBER, int(token)))
+for kind, value in tokens:
+    if kind == "STRING":
+        parsed_tokens.append(Token(TokenKind.STRING, value))
+    elif kind == "IDENTIFIER" and value in keywords:
+        parsed_tokens.append(Token(TokenKind.KEYWORD, value))
+    elif kind == "IDENTIFIER":
+        parsed_tokens.append(Token(TokenKind.IDENTIFIER, value))
+    elif kind == "NUMBER":
+        parsed_tokens.append(Token(TokenKind.NUMBER, int(value)))
+    elif kind == "SYMBOL":
+        parsed_tokens.append(Token(TokenKind.SYMBOL, value))
     else:
-        raise Exception(f"Unknown token: {token}")
-
+        raise Exception(f"Unknown token: {value}")
 
 #print(parsed_tokens)
 
