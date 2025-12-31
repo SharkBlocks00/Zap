@@ -12,9 +12,27 @@ class VarReassignment(ASTNode):
         self.value = value
 
 class OutputStatement(ASTNode):
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, value):
+        self.value = value
 
 class Expression(ASTNode):
     def __init__(self, expression):
         self.expression = expression
+
+class BinaryExpression(ASTNode):
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+class NumberLiteral(ASTNode):
+    def __init__(self, value):
+        self.value = value
+
+class StringLiteral(ASTNode):
+    def __init__(self, value):
+        self.value = value
+
+class Identifier(ASTNode):
+    def __init__(self, name):
+        self.name = name

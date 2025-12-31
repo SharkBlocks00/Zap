@@ -6,3 +6,4 @@ class TokenKind(Enum):
     NUMBER = "NUMBER"
     SYMBOL = "SYMBOL"
     EOF = "EOF"
+    STRING = "STRING"

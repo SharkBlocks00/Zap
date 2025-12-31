@@ -4,6 +4,7 @@ from src.TokenKind import TokenKind
 
 
 def parse_let(tokens, index):
+    #print(tokens[index])
     token = tokens[index]
     if token.kind != TokenKind.KEYWORD or token.value != "let":
         raise Exception("Expected 'let'")
@@ -28,6 +29,7 @@ def parse_let(tokens, index):
     value = token.value
     index += 1
 
+    token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise Exception("Expected ';' at end of let statement")
 
@@ -36,24 +38,27 @@ def parse_let(tokens, index):
     return VarDeclaration(var_name, value), index
 
 def parse_res(tokens, index):
-    if tokens[index][0] != "IDENTIFIER":
+    token = tokens[index]
+    if token.kind != TokenKind.IDENTIFIER:
         raise Exception("Expected identifier after 'res'")
 
-    var_name = tokens[index][1]
+    var_name = token.value
     index += 1
+    token = tokens[index]
 
-    if tokens[index] != ("SYMBOL", "="):
+    if token.kind != TokenKind.SYMBOL or token.value != "=":
         raise Exception("Expected '=' after identifier")
 
     index += 1
-
-    if tokens[index][0] != "NUMBER":
+    token = tokens[index]
+    if token.kind != TokenKind.NUMBER:
         raise Exception("Expected number after '='")
 
-    value = tokens[index][1]
+    value = token.value
     index += 1
+    token = tokens[index]
 
-    if tokens[index] != ("SYMBOL", ";"):
+    if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise Exception("Expected ';' at end of let statement")
 
     index += 1
@@ -63,21 +68,26 @@ def parse_res(tokens, index):
 def parse_output(tokens, index):
 
     index += 1
-
-    if tokens[index] != ("SYMBOL", "("):
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "(":
         raise Exception("Expected '(' to begin output statement")
 
-    output_data = tokens[index + 1]
     index += 1
+    token = tokens[index]
+    output_data = token.value
+    #print(f"Output: {output_data}")
+    index += 1
+    token = tokens[index]
    # print(f"Output data: {output_data}")
 
-    if tokens[index + 1] != ("SYMBOL", ")"):
+    if token.kind != TokenKind.SYMBOL or token.value != ")":
         raise Exception("Expected ')' at end of output statement")
 
     index += 1
+    token = tokens[index]
 
     #print(f"Token: {tokens[index + 1]}")
-    if tokens[index + 1] != ("SYMBOL", ";"):
+    if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise Exception("Expected ';' at end of output statement")
 
     index += 2
@@ -91,14 +101,14 @@ nodes = []
 
 while index < len(parsed_tokens):
    # print(parsed_tokens[index])
-
-    if parsed_tokens[index] == ('KEYWORD', 'let'):
+    token = parsed_tokens[index]
+    if token.kind == TokenKind.KEYWORD and token.value == "let":
         node, index = parse_let(parsed_tokens, index)
         nodes.append(node)
-    elif parsed_tokens[index][0] == "IDENTIFIER":
+    elif token.kind == TokenKind.IDENTIFIER:
         node, index = parse_res(parsed_tokens, index)
         nodes.append(node)
-    elif parsed_tokens[index] == ("KEYWORD", "output"):
+    elif token.kind == TokenKind.KEYWORD and token.value == "output":
         node, index = parse_output(parsed_tokens, index)
         nodes.append(node)
     else:

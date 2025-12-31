@@ -14,7 +14,7 @@ for node in nodes:
 
         environment[node.name] = node.value
     elif isinstance(node, OutputStatement):
-        print(node.data[1])
+        print(node.value)
 
 
 print(environment)
