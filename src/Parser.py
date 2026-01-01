@@ -183,6 +183,21 @@ def parse_if(tokens, index):
         body_nodes.append(stmt)
         token = tokens[index]
     index += 1
+    if index < len(tokens) and tokens[index].kind == TokenKind.KEYWORD and tokens[index].value == "else":
+        index += 1
+        token = tokens[index]
+        if token.kind != TokenKind.SYMBOL or token.value != "{":
+            raise Exception("Expected '{' to begin else body")
+        index += 1
+        else_body_nodes = []
+        token = tokens[index]
+        
+        while token.value != "}":
+            stmt, index = parse_statement(tokens, index)
+            else_body_nodes.append(stmt)
+            token = tokens[index]
+        index += 1
+        return IfStatement(condition, body_nodes, else_body_nodes), index
     #print(f"Condition: {condition.value}, Body nodes: {body_nodes}")
     return IfStatement(condition, body_nodes), index
 
