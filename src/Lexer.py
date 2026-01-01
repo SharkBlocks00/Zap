@@ -3,7 +3,7 @@ from typing import Any
 from Token import Token
 from TokenKind import TokenKind
 
-source: str = 'let x = 10; let ten = 10; if (x == ten) { output("x is equal to ten"); }'
+source: str = 'let x = 10; let ten = 10; if (x == ten) { output("x is equal to ten"); if (true) { output("nested if working"); if (true) { output("second nested if working"); }}}'
 
 i: int = 0
 tokens: list[Any] = []
