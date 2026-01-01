@@ -122,7 +122,9 @@ def parse_output(tokens, index):
 
     index += 1
     token = tokens[index]
+    #print(f"Token at start of output expression: {token.value}, TokenKind: {token.kind}")
     output_data, index = parse_expression(tokens, index)
+    #print(f"Output data parsed: {output_data}")
     token = tokens[index]
     #print(f"Token: {token.value}, TokenKind: {token.kind}")
 
