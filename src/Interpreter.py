@@ -1,5 +1,5 @@
 from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, BooleanLiteral
+from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, BooleanLiteral, BooleanExpression
 
 def eval_expression(expr, environment):
     if isinstance(expr, NumberLiteral):
@@ -24,6 +24,24 @@ def eval_expression(expr, environment):
             return left * right
         elif expr.operator == "/":
             return left / right
+    if isinstance(expr, BooleanExpression):
+        left = eval_expression(expr.left, environment)
+        right = eval_expression(expr.right, environment)
+        
+        if expr.operator == "==":
+            return left == right 
+        elif expr.operator == "<":
+            return left < right 
+        elif expr.operator == ">":
+            return left > right 
+        elif expr.operator == "<=":
+            return left <= right 
+        elif expr.operator == ">=":
+            return left >= right
+        elif expr.operator == "!=":
+            return left != right
+        
+
     raise Exception("Unknown operator type")
 
 

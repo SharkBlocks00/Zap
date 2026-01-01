@@ -1,9 +1,9 @@
 from Lexer import parsed_tokens
-from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, Identifier, Expression
+from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, Identifier, Expression, BooleanExpression
 from TokenKind import TokenKind
 
 def parse_expression(tokens, index):
-    return parse_addition(tokens, index)
+    return parse_comparison(tokens, index)
 
 def parse_addition(tokens, index):
     left, index = parse_multiplication(tokens, index)
@@ -22,6 +22,16 @@ def parse_multiplication(tokens, index):
         operator = tokens[index].value
         right, index = parse_primary(tokens, index + 1)
         left = BinaryExpression(left, operator, right)
+
+    return left, index
+
+def parse_comparison(tokens, index):
+    left, index = parse_addition(tokens, index)
+
+    while (index < len(tokens) and tokens[index].kind == TokenKind.SYMBOL and tokens[index].value in ["==", "!=", "<", ">", "<=", ">="]):
+        operator = tokens[index].value
+        right, index = parse_addition(tokens, index + 1)
+        left = BooleanExpression(left, operator, right)
 
     return left, index
 
