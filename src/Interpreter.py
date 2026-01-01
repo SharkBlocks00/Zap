@@ -1,10 +1,12 @@
 from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression
+from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, BooleanLiteral
 
 def eval_expression(expr, environment):
     if isinstance(expr, NumberLiteral):
         return expr.value
     if isinstance(expr, StringLiteral):
+        return expr.value
+    if isinstance(expr, BooleanLiteral):
         return expr.value
     if isinstance(expr, Identifier):
         if expr.name not in environment:

@@ -7,3 +7,4 @@ class TokenKind(Enum):
     SYMBOL = "SYMBOL"
     EOF = "EOF"
     STRING = "STRING"
+    BOOLEAN = "BOOLEAN"

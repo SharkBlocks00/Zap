@@ -3,7 +3,7 @@ from typing import Any
 from Token import Token
 from TokenKind import TokenKind
 
-source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hello"; output(x); output(b); output(4 + 1); let test = 4 + 2 * 3; output(test);'
+source: str = 'let x=5; let y = 10; x = 9; output("hi"); let b = "hello"; output(x); output(b); output(4 + 1); let test = 4 + 2 * 3; output(test); output( x * y); output("="*20); let bob = true; output(bob);'
 
 i: int = 0
 tokens: list[Any] = []
@@ -40,7 +40,11 @@ while i < len(source):
         start = i
         while i < len(source) and source[i].isalpha():
             i += 1
-        tokens.append(("IDENTIFIER", source[start:i]))
+        
+        if source[start:i] == "true" or source[start:i] == "false":
+            tokens.append(("BOOLEAN", source[start:i]))
+        else:
+            tokens.append(("IDENTIFIER", source[start:i]))
         continue
 
     if char.isdigit():
@@ -64,6 +68,8 @@ parsed_tokens: list[Any] = []
 for kind, value in tokens:
     if kind == "STRING":
         parsed_tokens.append(Token(TokenKind.STRING, value))
+    elif kind == "BOOLEAN":
+        parsed_tokens.append(Token(TokenKind.BOOLEAN, value))
     elif kind == "IDENTIFIER" and value in keywords:
         parsed_tokens.append(Token(TokenKind.KEYWORD, value))
     elif kind == "IDENTIFIER":
@@ -75,7 +81,7 @@ for kind, value in tokens:
     else:
         raise Exception(f"Unknown token: {value}")
 
-#for token in parsed_tokens:
- #   print(f"TokenKind: {token.kind}, Value: {token.value}")
+# for token in parsed_tokens:
+#     print(f"TokenKind: {token.kind}, Value: {token.value}")
 
 
