@@ -46,3 +46,8 @@ class BooleanExpression(ASTNode):
         self.left = left
         self.operator = operator
         self.right = right
+
+class IfStatement(ASTNode):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body

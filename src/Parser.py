@@ -1,6 +1,21 @@
 from Lexer import parsed_tokens
-from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, Identifier, Expression, BooleanExpression
+from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, IfStatement, Identifier, Expression, BooleanExpression
 from TokenKind import TokenKind
+
+def parse_statement(tokens, index): 
+    token = tokens[index]
+    if token.kind == TokenKind.KEYWORD and token.value == "let":
+        node, index = parse_let(parsed_tokens, index)
+    elif token.kind == TokenKind.IDENTIFIER:
+       # print(f"Parsed identifier token: {parsed_tokens[index].value}")
+        node, index = parse_res(parsed_tokens, index)
+    elif token.kind == TokenKind.KEYWORD and token.value == "output":
+        node, index = parse_output(parsed_tokens, index)
+    elif token.kind == TokenKind.KEYWORD and token.value == "if":
+        node, index = parse_if(parsed_tokens, index)
+    else:
+        raise Exception(f"Unknown token: {parsed_tokens[index]}")
+    return node, index
 
 def parse_expression(tokens, index):
     return parse_comparison(tokens, index)
@@ -142,6 +157,35 @@ def parse_output(tokens, index):
 
     return OutputStatement(output_data), index
 
+def parse_if(tokens, index):
+    index += 1
+    token = tokens[index] 
+    if token.kind != TokenKind.SYMBOL or token.value != "(":
+        raise Exception("Expected '(' after 'if'")
+
+    index += 1
+    token = tokens[index]
+    condition, index = parse_expression(tokens, index)
+
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != ")":
+        raise Exception("Expected ')' after if condition")
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "{":
+        raise Exception("Expected '{' to begin if body")
+    index += 1
+    body_nodes = []
+    token = tokens[index]
+    
+    while token.value != "}":
+        stmt, index = parse_statement(tokens, index)
+        body_nodes.append(stmt)
+        token = tokens[index]
+    index += 1
+    #print(f"Condition: {condition.value}, Body nodes: {body_nodes}")
+    return IfStatement(condition, body_nodes), index
+
 
 index = 0
 nodes = []
@@ -149,17 +193,5 @@ nodes = []
 while index < len(parsed_tokens):
     #print(f"Parsed tokens: {parsed_tokens}")
     #print(parsed_tokens[index].kind, parsed_tokens[index].value)
-    token = parsed_tokens[index]
-    if token.kind == TokenKind.KEYWORD and token.value == "let":
-        node, index = parse_let(parsed_tokens, index)
-        nodes.append(node)
-    elif token.kind == TokenKind.IDENTIFIER:
-       # print(f"Parsed identifier token: {parsed_tokens[index].value}")
-        node, index = parse_res(parsed_tokens, index)
-        nodes.append(node)
-    elif token.kind == TokenKind.KEYWORD and token.value == "output":
-        node, index = parse_output(parsed_tokens, index)
-        nodes.append(node)
-    else:
-        raise Exception(f"Unknown token: {parsed_tokens[index]}")
-
+    node, index = parse_statement(parsed_tokens, index)
+    nodes.append(node)

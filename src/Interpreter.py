@@ -1,5 +1,5 @@
 from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, BooleanLiteral, BooleanExpression
+from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression
 
 def eval_expression(expr, environment):
     if isinstance(expr, NumberLiteral):
@@ -54,6 +54,16 @@ for node in nodes:
         environment[node.name] = eval_expression(node.value, environment)
     elif isinstance(node, OutputStatement):
         print(eval_expression(node.value, environment))
+    elif isinstance(node, IfStatement):
+        condition_value = eval_expression(node.condition, environment)
+        if condition_value:
+            for stmt in node.body:
+                if isinstance(stmt, VarDeclaration):
+                    environment[stmt.name] = eval_expression(stmt.value, environment)
+                elif isinstance(stmt, VarReassignment):
+                    environment[stmt.name] = eval_expression(stmt.value, environment)
+                elif isinstance(stmt, OutputStatement):
+                    print(eval_expression(stmt.value, environment))
 
 
-print(environment)
+#print(environment)
