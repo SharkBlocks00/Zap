@@ -4,8 +4,8 @@ from TokenKind import TokenKind
 
 def parse_statement(tokens, index): 
     #print(f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
-    for token in tokens:
-        print(f"TokenKind: {token.kind}, Value: {token.value}")
+    # for token in tokens:
+    #     print(f"TokenKind: {token.kind}, Value: {token.value}")
     token = tokens[index]
     if token.kind == TokenKind.KEYWORD and token.value == "let":
         node, index = parse_let(parsed_tokens, index)
@@ -207,7 +207,7 @@ def parse_if(tokens, index):
         else_body = []
         token = tokens[index]
 
-        while token.value != "}" and token.kind != TokenKind.SYMBOL:
+        while token.value != "}":
             stmt, index = parse_statement(tokens, index)
             else_body.append(stmt)
             token = tokens[index]
