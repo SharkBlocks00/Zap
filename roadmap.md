@@ -15,7 +15,7 @@
 --- 
 
 ## Const Modifier
-### [] Completed
+### [ ] Completed
 
 "const" will be a keyword you can place before/after a let statement, and will change the mutability allowance of that variable.
 Suggested way to add: Implement a self.mutable in VarDecleration, and when looking up object in environment in interpreter, check
@@ -24,7 +24,7 @@ the mutable value, if True, allow mutability, otherwise throw error.
 ---
 
 ## Request Statement
-### [] Completed
+### [ ] Completed
 
 "request" as a keyword can be put after a ``let <var_name> = request();`` and any information inside the request parenthesis will be 
 passed into a python ``input()`` statement, and the value assigned to the declared/reassigned variable. Not too sure on implementation methods currently, however, will figure it out.
@@ -32,7 +32,7 @@ passed into a python ``input()`` statement, and the value assigned to the declar
 --- 
 
 ## Semi Colon Code Error
-### [] Completed 
+### [ ] Completed 
 
 Currently, you can put infinite amounts of code on a singular line. This could lead to developers using Zap (for whatever reason) to 
 be annoying to themselves and other developers, by coding an entire program on line 1. Instead, this should make it so that if there is any code after a semi colon, it will throw an error, as long as it is not inside a loop and so like a '}' for example. Implementation idea: Simply just check for code after a semi colon token, and check if it is a right curly brace, and if not, error.
@@ -40,7 +40,7 @@ be annoying to themselves and other developers, by coding an entire program on l
 --- 
 
 ## Better Errors
-### [] Completed
+### [ ] Completed
 
 At the moment, all errors in Zap are not at all descriptive, Ie. ``Exception: Undefined variable x``. This is somewhat descriptive, but 
 line numbers & even just slightly more information will make errors much more developer friendly. Also add in custom error classes
@@ -49,7 +49,7 @@ for example, Zap_Parser_Error, etc as well as terminal colors. This will be not 
 --- 
 
 ## Comments
-### [] Completed
+### [x] Completed
 
 Comments are basically an essential feature of any good modern programming language. Inline comments may be relatively easy, as we can 
 simple implement a comment ``TokenKind`` and check in the program if there is a Comment TokenKind, and simple ignore all tokens until EOL.

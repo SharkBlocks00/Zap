@@ -3,7 +3,20 @@ from typing import Any
 from Token import Token
 from TokenKind import TokenKind
 
-source: str = 'let x = 0; if (true) { output("Hello"); let b = 4; if (b == 4) { output("B is 4"); b = 10; output(b);}} elseif (false) { output("Goodbye"); } else { output("Neither"); x = 5;} output(x); func bob = define() { output("In Bob"); }'
+source: str = """
+let x = 10;
+output(x); -- plz dont break
+if (true) { -- still plz dont break
+    output("Condition is true");
+} else {
+    output("Condition is false");
+}
+func greet = define() {
+    output("Hello, World!");
+}
+greet();
+
+"""
 
 i: int = 0
 tokens: list[Any] = []
@@ -26,6 +39,12 @@ while i < len(source):
         i += 1
         continue
 
+    if char == "-" and i + 1 < len(source) and source[i + 1] == "-":
+        while i < len(source) and source[i] != "\n":
+            i += 1
+        continue
+
+
     if char == '"':
         i += 1
         start = i
@@ -42,7 +61,7 @@ while i < len(source):
 
     if char.isalpha():
         start = i
-        while i < len(source) and source[i].isalpha():
+        while i < len(source) and source[i].isalnum():
             i += 1
         
         if source[start:i] == "true" or source[start:i] == "false":
@@ -50,7 +69,7 @@ while i < len(source):
         elif source[start:i+1].endswith("(") and not source[start:i] in keywords:
             tokens.append(("FUNCTION_CALL", source[start:i]))
         else:
-            print(f"Identified identifier: {source[start:i+1]}")
+            #print(f"Identified identifier: {source[start:i+1]}")
             tokens.append(("IDENTIFIER", source[start:i]))
         continue
 
