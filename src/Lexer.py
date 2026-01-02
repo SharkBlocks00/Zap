@@ -15,6 +15,8 @@ keywords: list[str] = [
     "if",
     "else",
     "elseif",
+    "func",
+    "define",
 ]
 
 while i < len(source):

@@ -1,5 +1,5 @@
 from Lexer import parsed_tokens
-from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, IfStatement, Identifier, Expression, BooleanExpression
+from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression
 from TokenKind import TokenKind
 
 def parse_statement(tokens, index): 
@@ -20,6 +20,10 @@ def parse_statement(tokens, index):
         raise Exception("Unexpected 'elseif' without preceding 'if'")
     elif token.kind == TokenKind.KEYWORD and token.value == "else":
         raise Exception("Unexpected 'else' without preceding 'if'")
+    elif token.kind == TokenKind.KEYWORD and token.value == "func":
+        node, index = parse_function(parsed_tokens, index)
+    elif token.kind == TokenKind.KEYWORD and token.value == "define":
+        raise Exception("Unexpected 'define' without preceding 'func'")
     else:
         raise Exception(f"Unknown token: {parsed_tokens[index].value}")
     return node, index
@@ -88,7 +92,7 @@ def parse_let(tokens, index):
 
     index += 1
     token = tokens[index]
-    if token.kind == TokenKind.KEYWORD:
+    if token.kind != TokenKind.IDENTIFIER:
         raise Exception("Expected identifier after 'let'")
 
 
@@ -216,6 +220,43 @@ def parse_if(tokens, index):
         return IfStatement(condition, body_nodes, else_branch), index
     return IfStatement(condition, body_nodes, None), index
 
+def parse_function(tokens, index):
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.IDENTIFIER:
+        raise Exception("Expected function name after 'func'")
+    func_name = token.value
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "=":
+        raise Exception("Expected '=' after function name")
+
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.KEYWORD or token.value != "define":
+        raise Exception("Expected 'define' after '=' in function declaration")
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "(":
+        raise Exception("Expected '(' after 'define'")
+    index += 1
+    # TODO LATER: Allow paramaters
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != ")":
+        raise Exception("Expected ')' after function parameters")
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "{":
+        raise Exception("Expected '{' to begin function body")
+    index += 1
+    body_nodes = []
+    token = tokens[index]
+    while token.value != "}":
+        stmt, index = parse_statement(tokens, index)
+        body_nodes.append(stmt)
+        token = tokens[index]
+    index += 1
+    return Function(func_name, [], body_nodes), index
 
 index = 0
 nodes = []

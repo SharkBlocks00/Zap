@@ -52,3 +52,9 @@ class IfStatement(ASTNode):
         self.condition = condition
         self.body = body
         self.else_body = else_body
+
+class Function(ASTNode):
+    def __init__(self, name, parameters, body):
+        self.name = name
+        self.parameters = parameters
+        self.body = body
