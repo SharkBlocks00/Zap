@@ -3,7 +3,7 @@ from typing import Any
 from Token import Token
 from TokenKind import TokenKind
 
-source: str = 'let x = 0; if (false) { output("Hello");} elseif (false) { output("Goodbye"); } else { output("Neither"); x = 5;} output(x); '
+source: str = 'let x = 0; if (true) { output("Hello"); let b = 4; if (b == 4) { output("B is 4"); b = 10; output(b);}} elseif (false) { output("Goodbye"); } else { output("Neither"); x = 5;} output(x);'
 
 i: int = 0
 tokens: list[Any] = []

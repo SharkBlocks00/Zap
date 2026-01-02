@@ -1,5 +1,6 @@
 from Parser import nodes
 from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression
+from classes.Environment import Environment
 
 def eval_expression(expr, environment):
     if isinstance(expr, NumberLiteral):
@@ -7,14 +8,9 @@ def eval_expression(expr, environment):
     if isinstance(expr, StringLiteral):
         return expr.value
     if isinstance(expr, BooleanLiteral):
-        value = expr.value[0].upper()
-        value += expr.value[1:]
-        expr.value = value 
-        return expr.value == "True"
+        return expr.value.lower() == "true"
     if isinstance(expr, Identifier):
-        if expr.name not in environment:
-            raise Exception(f"Undefined variable {expr.name}")
-        return environment[expr.name]
+        return environment.get(expr.name)
     if isinstance(expr, BinaryExpression):
         left = eval_expression(expr.left, environment)
         right = eval_expression(expr.right, environment)
@@ -47,45 +43,27 @@ def eval_expression(expr, environment):
 
     raise Exception("Unknown operator type")
 
-environment = {}
-def interpret_nodes(nodes):
+global_environment = Environment()
+def interpret_nodes(nodes, global_environment):
     for node in nodes:
         #print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
         if isinstance(node, VarDeclaration):
-            environment[node.name] = eval_expression(node.value, environment)
+            global_environment.define(node.name, eval_expression(node.value, global_environment))
         elif isinstance(node, VarReassignment):
-            environment[node.name] = eval_expression(node.value, environment)
+            global_environment.assign(node.name, eval_expression(node.value, global_environment))
         elif isinstance(node, OutputStatement):
-            print(eval_expression(node.value, environment))
+            print(eval_expression(node.value, global_environment))
         elif isinstance(node, IfStatement):
-            condition_value = eval_expression(node.condition, environment)
-            #print(f"If condition evaluated to: {condition_value}")
-            if condition_value:
-                new_environment = environment.copy()
-                for stmt in node.body:
-                    if isinstance(stmt, VarDeclaration):
-                        environment[stmt.name] = eval_expression(stmt.value, new_environment)
-                    elif isinstance(stmt, VarReassignment):
-                        environment[stmt.name] = eval_expression(stmt.value, new_environment)
-                    elif isinstance(stmt, OutputStatement):
-                        print(eval_expression(stmt.value, new_environment))
-                    elif isinstance(stmt, IfStatement):
-                        interpret_nodes([stmt])
+            if eval_expression(node.condition, global_environment):
+                block_environment = Environment(parent=global_environment)
+                interpret_nodes(node.body, block_environment)
             elif node.else_body:
                 if isinstance(node.else_body, IfStatement):
-                    interpret_nodes([node.else_body])
-                elif isinstance(node.else_body, list):
-                    new_environment = environment.copy()
-                    for stmt in node.else_body:
-                        if isinstance(stmt, VarDeclaration):
-                            environment[stmt.name] = eval_expression(stmt.value, new_environment)
-                        elif isinstance(stmt, VarReassignment):
-                            environment[stmt.name] = eval_expression(stmt.value, new_environment)
-                        elif isinstance(stmt, OutputStatement):
-                            print(eval_expression(stmt.value, new_environment))
-                        elif isinstance(stmt, IfStatement):
-                            interpret_nodes([stmt])
+                    interpret_nodes([node.else_body], global_environment)
+                else:
+                    block_environment = Environment(parent=global_environment)
+                    interpret_nodes(node.else_body, block_environment)
             
-interpret_nodes(nodes)
+interpret_nodes(nodes, global_environment)
 
 #print(environment)
