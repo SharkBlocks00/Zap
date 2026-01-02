@@ -3,7 +3,7 @@ from typing import Any
 from Token import Token
 from TokenKind import TokenKind
 
-source: str = 'let x = 10; let ten = 10; if (x == ten) { output("x is equal to ten"); if (false) { output("second nested if working"); } else { output("else working");}}'
+source: str = 'if (false) { output("Hello"); } elseif (false) { output("Goodbye"); } else { output("Neither"); }'
 
 i: int = 0
 tokens: list[Any] = []
@@ -14,6 +14,7 @@ keywords: list[str] = [
     "request",
     "if",
     "else",
+    "elseif",
 ]
 
 while i < len(source):

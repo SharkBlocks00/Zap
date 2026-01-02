@@ -50,7 +50,7 @@ def eval_expression(expr, environment):
 environment = {}
 def interpret_nodes(nodes):
     for node in nodes:
-    #print(node.name)
+        print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
         if isinstance(node, VarDeclaration):
             environment[node.name] = eval_expression(node.value, environment)
         elif isinstance(node, VarReassignment):
@@ -59,27 +59,33 @@ def interpret_nodes(nodes):
             print(eval_expression(node.value, environment))
         elif isinstance(node, IfStatement):
             condition_value = eval_expression(node.condition, environment)
-            #print(f"If condition evaluated to: {condition_value}")
+            print(f"If condition evaluated to: {condition_value}")
             if condition_value:
+                new_environment = environment.copy()
                 for stmt in node.body:
                     if isinstance(stmt, VarDeclaration):
-                        environment[stmt.name] = eval_expression(stmt.value, environment)
+                        environment[stmt.name] = eval_expression(stmt.value, new_environment)
                     elif isinstance(stmt, VarReassignment):
-                        environment[stmt.name] = eval_expression(stmt.value, environment)
+                        environment[stmt.name] = eval_expression(stmt.value, new_environment)
                     elif isinstance(stmt, OutputStatement):
-                        print(eval_expression(stmt.value, environment))
+                        print(eval_expression(stmt.value, new_environment))
                     elif isinstance(stmt, IfStatement):
                         interpret_nodes([stmt])
-            if node.else_body and not condition_value:
-                for stmt in node.else_body:
-                    if isinstance(stmt, VarDeclaration):
-                        environment[stmt.name] = eval_expression(stmt.value, environment)
-                    elif isinstance(stmt, VarReassignment):
-                        environment[stmt.name] = eval_expression(stmt.value, environment)
-                    elif isinstance(stmt, OutputStatement):
-                        print(eval_expression(stmt.value, environment))
-                    elif isinstance(stmt, IfStatement):
-                        interpret_nodes([stmt])
+            elif node.else_body:
+                if isinstance(node.else_body, IfStatement):
+                    interpret_nodes([node.else_body])
+                elif isinstance(node.else_body, list):
+                    new_environment = environment.copy()
+                    for stmt in node.else_body:
+                        if isinstance(stmt, VarDeclaration):
+                            environment[stmt.name] = eval_expression(stmt.value, new_environment)
+                        elif isinstance(stmt, VarReassignment):
+                            environment[stmt.name] = eval_expression(stmt.value, new_environment)
+                        elif isinstance(stmt, OutputStatement):
+                            print(eval_expression(stmt.value, new_environment))
+                        elif isinstance(stmt, IfStatement):
+                            interpret_nodes([stmt])
+            
 interpret_nodes(nodes)
 
 #print(environment)

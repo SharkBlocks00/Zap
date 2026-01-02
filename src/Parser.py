@@ -3,6 +3,9 @@ from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaratio
 from TokenKind import TokenKind
 
 def parse_statement(tokens, index): 
+    #print(f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
+    for token in tokens:
+        print(f"TokenKind: {token.kind}, Value: {token.value}")
     token = tokens[index]
     if token.kind == TokenKind.KEYWORD and token.value == "let":
         node, index = parse_let(parsed_tokens, index)
@@ -13,8 +16,12 @@ def parse_statement(tokens, index):
         node, index = parse_output(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "if":
         node, index = parse_if(parsed_tokens, index)
+    elif token.kind == TokenKind.KEYWORD and token.value == "elseif":
+        raise Exception("Unexpected 'elseif' without preceding 'if'")
+    elif token.kind == TokenKind.KEYWORD and token.value == "else":
+        raise Exception("Unexpected 'else' without preceding 'if'")
     else:
-        raise Exception(f"Unknown token: {parsed_tokens[index]}")
+        raise Exception(f"Unknown token: {parsed_tokens[index].value}")
     return node, index
 
 def parse_expression(tokens, index):
@@ -183,23 +190,31 @@ def parse_if(tokens, index):
         body_nodes.append(stmt)
         token = tokens[index]
     index += 1
-    if index < len(tokens) and tokens[index].kind == TokenKind.KEYWORD and tokens[index].value == "else":
+
+    else_branch = None
+
+
+    if index < len(tokens) and tokens[index].kind == TokenKind.KEYWORD and tokens[index].value == "elseif":
+        else_branch, index = parse_if(tokens, index)
+        return IfStatement(condition, body_nodes, else_branch), index
+
+    elif index < len(tokens) and tokens[index].kind == TokenKind.KEYWORD and tokens[index].value == "else":
         index += 1
         token = tokens[index]
         if token.kind != TokenKind.SYMBOL or token.value != "{":
             raise Exception("Expected '{' to begin else body")
         index += 1
-        else_body_nodes = []
+        else_body = []
         token = tokens[index]
-        
-        while token.value != "}":
+
+        while token.value != "}" and token.kind != TokenKind.SYMBOL:
             stmt, index = parse_statement(tokens, index)
-            else_body_nodes.append(stmt)
+            else_body.append(stmt)
             token = tokens[index]
         index += 1
-        return IfStatement(condition, body_nodes, else_body_nodes), index
-    #print(f"Condition: {condition.value}, Body nodes: {body_nodes}")
-    return IfStatement(condition, body_nodes), index
+        else_branch = else_body
+        return IfStatement(condition, body_nodes, else_branch), index
+    return IfStatement(condition, body_nodes, None), index
 
 
 index = 0
@@ -207,6 +222,6 @@ nodes = []
 
 while index < len(parsed_tokens):
     #print(f"Parsed tokens: {parsed_tokens}")
-    #print(parsed_tokens[index].kind, parsed_tokens[index].value)
+    print(parsed_tokens[index].kind, parsed_tokens[index].value)
     node, index = parse_statement(parsed_tokens, index)
     nodes.append(node)
