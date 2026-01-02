@@ -10,7 +10,7 @@ def parse_statement(tokens, index):
     if token.kind == TokenKind.KEYWORD and token.value == "let":
         node, index = parse_let(parsed_tokens, index)
     elif token.kind == TokenKind.IDENTIFIER:
-       # print(f"Parsed identifier token: {parsed_tokens[index].value}")
+       #print(f"Parsed identifier token: {parsed_tokens[index].value}")
         node, index = parse_res(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "output":
         node, index = parse_output(parsed_tokens, index)
@@ -222,6 +222,6 @@ nodes = []
 
 while index < len(parsed_tokens):
     #print(f"Parsed tokens: {parsed_tokens}")
-    print(parsed_tokens[index].kind, parsed_tokens[index].value)
+    #print(parsed_tokens[index].kind, parsed_tokens[index].value)
     node, index = parse_statement(parsed_tokens, index)
     nodes.append(node)

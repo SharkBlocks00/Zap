@@ -50,7 +50,7 @@ def eval_expression(expr, environment):
 environment = {}
 def interpret_nodes(nodes):
     for node in nodes:
-        print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
+        #print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
         if isinstance(node, VarDeclaration):
             environment[node.name] = eval_expression(node.value, environment)
         elif isinstance(node, VarReassignment):
@@ -59,7 +59,7 @@ def interpret_nodes(nodes):
             print(eval_expression(node.value, environment))
         elif isinstance(node, IfStatement):
             condition_value = eval_expression(node.condition, environment)
-            print(f"If condition evaluated to: {condition_value}")
+            #print(f"If condition evaluated to: {condition_value}")
             if condition_value:
                 new_environment = environment.copy()
                 for stmt in node.body:
