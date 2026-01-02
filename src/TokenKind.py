@@ -8,3 +8,4 @@ class TokenKind(Enum):
     EOF = "EOF"
     STRING = "STRING"
     BOOLEAN = "BOOLEAN"
+    FUNCTION_CALL = "FUNCTION_CALL"

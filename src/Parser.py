@@ -1,5 +1,5 @@
 from Lexer import parsed_tokens
-from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression
+from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression, Function_Call
 from TokenKind import TokenKind
 
 def parse_statement(tokens, index): 
@@ -9,6 +9,8 @@ def parse_statement(tokens, index):
     token = tokens[index]
     if token.kind == TokenKind.KEYWORD and token.value == "let":
         node, index = parse_let(parsed_tokens, index)
+    elif token.kind == TokenKind.IDENTIFIER and tokens[index + 1].kind == TokenKind.SYMBOL and tokens[index + 1].value == "(":
+        node, index - parse_function(parsed_tokens, index)
     elif token.kind == TokenKind.IDENTIFIER:
        #print(f"Parsed identifier token: {parsed_tokens[index].value}")
         node, index = parse_res(parsed_tokens, index)
@@ -24,6 +26,8 @@ def parse_statement(tokens, index):
         node, index = parse_function(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "define":
         raise Exception("Unexpected 'define' without preceding 'func'")
+    elif token.kind == TokenKind.FUNCTION_CALL: 
+        node, index = parse_function_call(parsed_tokens, index)
     else:
         raise Exception(f"Unknown token: {parsed_tokens[index].value}")
     return node, index
@@ -221,8 +225,12 @@ def parse_if(tokens, index):
     return IfStatement(condition, body_nodes, None), index
 
 def parse_function(tokens, index):
+    #print(f"Parsing function at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
     index += 1
-    token = tokens[index]
+    try:
+        token = tokens[index]
+    except IndexError:
+        raise Exception("Unexpected end of input while parsing function")
     if token.kind != TokenKind.IDENTIFIER:
         raise Exception("Expected function name after 'func'")
     func_name = token.value
@@ -257,6 +265,24 @@ def parse_function(tokens, index):
         token = tokens[index]
     index += 1
     return Function(func_name, [], body_nodes), index
+
+def parse_function_call(tokens, index):
+    token = tokens[index]
+    function_name = token.value
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "(":
+        raise Exception("Expected '(' after function call")
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != ")":
+        raise Exception("Expected ')' after function call")
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != ";":
+        raise Exception("Expected ';' after function call")
+    index += 1
+    return Function_Call(function_name), index
 
 index = 0
 nodes = []

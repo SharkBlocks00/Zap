@@ -1,5 +1,5 @@
 from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression
+from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call
 from classes.Environment import Environment
 
 def eval_expression(expr, environment):
@@ -40,7 +40,8 @@ def eval_expression(expr, environment):
         elif expr.operator == "!=":
             return left != right
         
-
+    if isinstance(expr, IfStatement):
+        return eval_expression(expr.condition, environment)
     raise Exception("Unknown operator type")
 
 global_environment = Environment()
@@ -63,7 +64,15 @@ def interpret_nodes(nodes, global_environment):
                 else:
                     block_environment = Environment(parent=global_environment)
                     interpret_nodes(node.else_body, block_environment)
-            
+        elif isinstance(node, Function):
+            global_environment.define(node.name, node)
+        elif isinstance(node, Function_Call):
+            function = global_environment.get(node.name)
+            if not isinstance(function, Function):
+                raise Exception(f"{node.name} is not a function")
+            function_environment = Environment(parent=global_environment)
+            interpret_nodes(function.body, function_environment)
+
 interpret_nodes(nodes, global_environment)
 
 #print(environment)

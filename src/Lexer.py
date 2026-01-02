@@ -3,7 +3,7 @@ from typing import Any
 from Token import Token
 from TokenKind import TokenKind
 
-source: str = 'let x = 0; if (true) { output("Hello"); let b = 4; if (b == 4) { output("B is 4"); b = 10; output(b);}} elseif (false) { output("Goodbye"); } else { output("Neither"); x = 5;} output(x);'
+source: str = 'let x = 0; if (true) { output("Hello"); let b = 4; if (b == 4) { output("B is 4"); b = 10; output(b);}} elseif (false) { output("Goodbye"); } else { output("Neither"); x = 5;} output(x); func bob = define() { output("In Bob"); }'
 
 i: int = 0
 tokens: list[Any] = []
@@ -47,7 +47,10 @@ while i < len(source):
         
         if source[start:i] == "true" or source[start:i] == "false":
             tokens.append(("BOOLEAN", source[start:i]))
+        elif source[start:i+1].endswith("(") and not source[start:i] in keywords:
+            tokens.append(("FUNCTION_CALL", source[start:i]))
         else:
+            print(f"Identified identifier: {source[start:i+1]}")
             tokens.append(("IDENTIFIER", source[start:i]))
         continue
 
@@ -86,6 +89,8 @@ for kind, value in tokens:
         parsed_tokens.append(Token(TokenKind.NUMBER, int(value)))
     elif kind == "SYMBOL":
         parsed_tokens.append(Token(TokenKind.SYMBOL, value))
+    elif kind == "FUNCTION_CALL":
+        parsed_tokens.append(Token(TokenKind.FUNCTION_CALL, value))
     else:
         raise Exception(f"Unknown token: {value}")
 
