@@ -1,5 +1,5 @@
 from Lexer import parsed_tokens
-from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression, Function_Call
+from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, RequestStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression, Function_Call
 from TokenKind import TokenKind
 
 def parse_statement(tokens, index): 
@@ -28,6 +28,9 @@ def parse_statement(tokens, index):
         raise Exception("Unexpected 'define' without preceding 'func'")
     elif token.kind == TokenKind.FUNCTION_CALL: 
         node, index = parse_function_call(parsed_tokens, index)
+    elif token.kind == TokenKind.KEYWORD and token.value == "request":
+        node, index = parse_request(parsed_tokens, index)
+        #print(f"Parsed request statement: {node.value.value}")
     else:
         raise Exception(f"Unknown token: {parsed_tokens[index].value}")
     return node, index
@@ -67,6 +70,7 @@ def parse_comparison(tokens, index):
 
 
 def parse_primary(tokens, index):
+    #print(f"Debug: Token before: {tokens[index-1].value if index > 0 else 'None'}, Current: {tokens[index].value}, Next: {tokens[index+1].value if index + 1 < len(tokens) else 'None'}")
     token = tokens[index]
 
     if token.kind == TokenKind.NUMBER:
@@ -77,6 +81,9 @@ def parse_primary(tokens, index):
         return StringLiteral(token.value), index + 1
     if token.kind == TokenKind.IDENTIFIER:
         return Identifier(token.value), index + 1
+    
+    if token.kind == TokenKind.KEYWORD and token.value == "request":
+        return parse_request(tokens, index)
 
     if token.kind == TokenKind.SYMBOL and token.value == "(":
         expr, index = parse_expression(tokens, index + 1)
@@ -86,7 +93,7 @@ def parse_primary(tokens, index):
 
         return expr, index 
 
-    raise Exception("Unexpected token")    
+    raise Exception(f"Unexpected token '{token.value}'")    
 
 def parse_let(tokens, index):
     #print(tokens[index])
@@ -108,9 +115,11 @@ def parse_let(tokens, index):
     if token.kind != TokenKind.SYMBOL or token.value != "=":
         raise Exception("Expected '=' after identifier")
 
-    index += 1
+    index += 1 
     value, index = parse_expression(tokens, index)
 
+    #print(f"Parsed value for variable '{var_name}': {value}")
+    #print(f"Token: {tokens[index].kind}, Value: {tokens[index].value}")
     token = tokens[index]
     #print(f"Token at end of let: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != ";":
@@ -171,6 +180,21 @@ def parse_output(tokens, index):
     index += 1
 
     return OutputStatement(output_data), index
+
+def parse_request(tokens, index):
+    index += 1
+    #print(f"Tokens: {tokens[index+1:]}")
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "(":
+        raise Exception("Expected '(' to begin request statement")
+    index += 1
+    token = tokens[index]
+    request_data, index = parse_expression(tokens, index)
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != ")":
+        raise Exception("Expected a ')' to end request statement")
+    index += 1
+    return RequestStatement(request_data), index
 
 def parse_if(tokens, index):
     index += 1

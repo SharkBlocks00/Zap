@@ -63,3 +63,7 @@ class Function_Call(ASTNode):
     def __init__(self, name, parameters=None):
         self.name = name
         self.parameters = parameters
+
+class RequestStatement(ASTNode):
+    def __init__(self, value):
+        self.value = value

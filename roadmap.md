@@ -27,7 +27,7 @@ the mutable value, if True, allow mutability, otherwise throw error.
 ---
 
 ## Request Statement
-### - [ ] Completed
+### - [X] Completed
 
 "request" as a keyword can be put after a ``let <var_name> = request();`` and any information inside the request parenthesis will be 
 passed into a python ``input()`` statement, and the value assigned to the declared/reassigned variable. Not too sure on implementation methods currently, however, will figure it out.
@@ -52,7 +52,7 @@ for example, Zap_Parser_Error, etc as well as terminal colors. This will be not 
 --- 
 
 ## Comments
-### - [x] Completed
+### - [X] Completed
 
 Comments are basically an essential feature of any good modern programming language. Inline comments may be relatively easy, as we can 
 simple implement a comment ``TokenKind`` and check in the program if there is a Comment TokenKind, and simple ignore all tokens until EOL.

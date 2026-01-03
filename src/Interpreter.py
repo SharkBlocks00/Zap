@@ -1,6 +1,14 @@
 from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call
+from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, RequestStatement, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call
 from classes.Environment import Environment
+
+def convert_input(value):
+    if value.isdigit():
+        return int(value)
+    try:
+        return float(value)
+    except:
+        return value
 
 def eval_expression(expr, environment):
     if isinstance(expr, NumberLiteral):
@@ -42,7 +50,16 @@ def eval_expression(expr, environment):
         
     if isinstance(expr, IfStatement):
         return eval_expression(expr.condition, environment)
-    raise Exception("Unknown operator type")
+    if isinstance(expr, RequestStatement):
+        return convert_input(input(expr.value.value))
+    if isinstance(expr, str):
+        return expr
+    if isinstance(expr, int) or isinstance(expr, float):
+        return expr 
+    if isinstance(expr, bool):
+        return expr
+    
+    raise Exception(f"Unknown operator type for expression: {type(expr)}")
 
 global_environment = Environment()
 def interpret_nodes(nodes, global_environment):
@@ -72,6 +89,8 @@ def interpret_nodes(nodes, global_environment):
                 raise Exception(f"{node.name} is not a function")
             function_environment = Environment(parent=global_environment)
             interpret_nodes(function.body, function_environment)
+
+
 
 interpret_nodes(nodes, global_environment)
 

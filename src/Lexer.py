@@ -15,7 +15,8 @@ func greet = define() {
     output("Hello, World!");
 }
 greet();
-
+let name = request("Enter your name: ");
+output(name);
 """
 
 i: int = 0
