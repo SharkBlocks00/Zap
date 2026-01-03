@@ -1,6 +1,7 @@
 from Lexer import parsed_tokens
 from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, RequestStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression, Function_Call
 from TokenKind import TokenKind
+from Errors.ParseErrors import UnexpectedTokenError, ExpectedTokenError, ParseError
 
 def parse_statement(tokens, index): 
     #print(f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
@@ -19,20 +20,20 @@ def parse_statement(tokens, index):
     elif token.kind == TokenKind.KEYWORD and token.value == "if":
         node, index = parse_if(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "elseif":
-        raise Exception("Unexpected 'elseif' without preceding 'if'")
+        raise UnexpectedTokenError("elseif")
     elif token.kind == TokenKind.KEYWORD and token.value == "else":
-        raise Exception("Unexpected 'else' without preceding 'if'")
+        raise UnexpectedTokenError("else")
     elif token.kind == TokenKind.KEYWORD and token.value == "func":
         node, index = parse_function(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "define":
-        raise Exception("Unexpected 'define' without preceding 'func'")
+        raise UnexpectedTokenError("define")
     elif token.kind == TokenKind.FUNCTION_CALL: 
         node, index = parse_function_call(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "request":
         node, index = parse_request(parsed_tokens, index)
         #print(f"Parsed request statement: {node.value.value}")
     else:
-        raise Exception(f"Unknown token: {parsed_tokens[index].value}")
+        raise UnexpectedTokenError(parsed_tokens[index].value)
     return node, index
 
 def parse_expression(tokens, index):
@@ -89,22 +90,22 @@ def parse_primary(tokens, index):
         expr, index = parse_expression(tokens, index + 1)
 
         if tokens[index].kind != TokenKind.SYMBOL or tokens[index].value != ")":
-            raise Exception("Unexpected token")
+            raise UnexpectedTokenError(tokens[index].value)
 
         return expr, index 
 
-    raise Exception(f"Unexpected token '{token.value}'")    
+    raise UnexpectedTokenError(token.value)
 
 def parse_let(tokens, index):
     #print(tokens[index])
     token = tokens[index]
     if token.kind != TokenKind.KEYWORD or token.value != "let":
-        raise Exception("Expected 'let'")
+        raise ExpectedTokenError("let", token.value if token else "end of input")
 
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.IDENTIFIER:
-        raise Exception("Expected identifier after 'let'")
+        raise ExpectedTokenError("identifier", token.value)
 
 
     var_name = token.value
@@ -113,7 +114,7 @@ def parse_let(tokens, index):
     token = tokens[index]
     #print(f"Token: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != "=":
-        raise Exception("Expected '=' after identifier")
+        raise ExpectedTokenError("=", token.value)
 
     index += 1 
     value, index = parse_expression(tokens, index)
@@ -123,7 +124,7 @@ def parse_let(tokens, index):
     token = tokens[index]
     #print(f"Token at end of let: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != ";":
-        raise Exception("Expected ';' at end of let statement")
+        raise ExpectedTokenError(";", token.value)
 
     index += 1
 
@@ -132,21 +133,21 @@ def parse_let(tokens, index):
 def parse_res(tokens, index):
     token = tokens[index]
     if token.kind != TokenKind.IDENTIFIER:
-        raise Exception("Expected identifier after 'res'")
+        raise ExpectedTokenError("identifier", token.value)
 
     var_name = token.value
     index += 1
     token = tokens[index]
 
     if token.kind != TokenKind.SYMBOL or token.value != "=":
-        raise Exception("Expected '=' after identifier")
+        raise ExpectedTokenError("=", token.value)
 
     index += 1
     value, index = parse_expression(tokens, index)
     token = tokens[index]
 
     if token.kind != TokenKind.SYMBOL or token.value != ";":
-        raise Exception("Expected ';' at end of let statement")
+        raise ExpectedTokenError(";", token.value)
 
     index += 1
 
@@ -157,7 +158,7 @@ def parse_output(tokens, index):
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
-        raise Exception("Expected '(' to begin output statement")
+        raise ExpectedTokenError("(", token.value if token else "end of input")
 
     index += 1
     token = tokens[index]
@@ -168,14 +169,14 @@ def parse_output(tokens, index):
     #print(f"Token: {token.value}, TokenKind: {token.kind}")
 
     if token.kind != TokenKind.SYMBOL or token.value != ")":
-        raise Exception("Expected a ')' to end output statement")
+        raise ExpectedTokenError(")", token.value if token else "end of input")
     
     index += 1
     token = tokens[index]
 
     #print(f"Token: {tokens[index + 1]}")
     if token.kind != TokenKind.SYMBOL or token.value != ";":
-        raise Exception("Expected ';' at end of output statement")
+        raise ExpectedTokenError(";", token.value if token else "end of input")
 
     index += 1
 
@@ -186,13 +187,13 @@ def parse_request(tokens, index):
     #print(f"Tokens: {tokens[index+1:]}")
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
-        raise Exception("Expected '(' to begin request statement")
+        raise ExpectedTokenError("(", token.value if token else "end of input")
     index += 1
     token = tokens[index]
     request_data, index = parse_expression(tokens, index)
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ")":
-        raise Exception("Expected a ')' to end request statement")
+        raise ExpectedTokenError(")", token.value if token else "end of input")
     index += 1
     return RequestStatement(request_data), index
 
@@ -200,7 +201,7 @@ def parse_if(tokens, index):
     index += 1
     token = tokens[index] 
     if token.kind != TokenKind.SYMBOL or token.value != "(":
-        raise Exception("Expected '(' after 'if'")
+        raise ExpectedTokenError("(", token.value if token else "end of input")
 
     index += 1
     token = tokens[index]
@@ -208,11 +209,11 @@ def parse_if(tokens, index):
 
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ")":
-        raise Exception("Expected ')' after if condition")
+        raise ExpectedTokenError(")", token.value if token else "end of input")
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "{":
-        raise Exception("Expected '{' to begin if body")
+        raise ExpectedTokenError("{", token.value if token else "end of input")
     index += 1
     body_nodes = []
     token = tokens[index]
@@ -234,7 +235,7 @@ def parse_if(tokens, index):
         index += 1
         token = tokens[index]
         if token.kind != TokenKind.SYMBOL or token.value != "{":
-            raise Exception("Expected '{' to begin else body")
+            raise ExpectedTokenError("{", token.value if token else "end of input")
         index += 1
         else_body = []
         token = tokens[index]
@@ -254,32 +255,32 @@ def parse_function(tokens, index):
     try:
         token = tokens[index]
     except IndexError:
-        raise Exception("Unexpected end of input while parsing function")
+        raise ParseError("Unexpected end of input while parsing function")
     if token.kind != TokenKind.IDENTIFIER:
-        raise Exception("Expected function name after 'func'")
+        raise ExpectedTokenError("identifier", token.value if token else "end of input")
     func_name = token.value
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "=":
-        raise Exception("Expected '=' after function name")
+        raise ExpectedTokenError("=", token.value if token else "end of input")
 
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.KEYWORD or token.value != "define":
-        raise Exception("Expected 'define' after '=' in function declaration")
+        raise ExpectedTokenError("define", token.value if token else "end of input")
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
-        raise Exception("Expected '(' after 'define'")
+        raise ExpectedTokenError("(", token.value if token else "end of input")
     index += 1
     # TODO LATER: Allow paramaters
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ")":
-        raise Exception("Expected ')' after function parameters")
+        raise ExpectedTokenError(")", token.value if token else "end of input")
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "{":
-        raise Exception("Expected '{' to begin function body")
+        raise ExpectedTokenError("{", token.value if token else "end of input")
     index += 1
     body_nodes = []
     token = tokens[index]
@@ -296,15 +297,15 @@ def parse_function_call(tokens, index):
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
-        raise Exception("Expected '(' after function call")
+        raise ExpectedTokenError("(", token.value if token else "end of input")
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ")":
-        raise Exception("Expected ')' after function call")
+        raise ExpectedTokenError(")", token.value if token else "end of input")
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ";":
-        raise Exception("Expected ';' after function call")
+        raise ExpectedTokenError(";", token.value if token else "end of input")
     index += 1
     return Function_Call(function_name), index
 

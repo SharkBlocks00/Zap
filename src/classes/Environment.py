@@ -1,3 +1,5 @@
+from Errors.RuntimeErrors import UndefinedVariableError
+
 class Environment:
     def __init__(self, parent=None):
         self.variables = {}
@@ -12,7 +14,7 @@ class Environment:
         elif self.parent:
             self.parent.assign(name, value)
         else:
-            raise Exception(f"Undefined variable '{name}'")
+            raise UndefinedVariableError(name)
     
     def get(self, name):
         if name in self.variables:
@@ -20,4 +22,4 @@ class Environment:
         elif self.parent:
             return self.parent.get(name)
         else:
-            raise Exception(f"Undefined variable '{name}'")
+            raise UndefinedVariableError(name)

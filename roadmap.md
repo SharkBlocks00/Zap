@@ -43,7 +43,7 @@ be annoying to themselves and other developers, by coding an entire program on l
 --- 
 
 ## Better Errors
-### - [ ] Completed
+### - [X] Completed
 
 At the moment, all errors in Zap are not at all descriptive, Ie. ``Exception: Undefined variable x``. This is somewhat descriptive, but 
 line numbers & even just slightly more information will make errors much more developer friendly. Also add in custom error classes

@@ -1,6 +1,10 @@
 from Parser import nodes
 from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, RequestStatement, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call
 from classes.Environment import Environment
+from Errors.Errors import ZapError
+from Errors.RuntimeErrors import UndefinedVariableError, InvalidAssignmentError, NotCallableError
+from Errors.TypeErrors import InvalidBinaryOperation, InvalidFunctionArgumentType
+
 
 def convert_input(value):
     if value.isdigit():
@@ -57,7 +61,7 @@ def eval_expression(expr, environment):
     if isinstance(expr, bool):
         return expr
     
-    raise Exception(f"Unknown operator type for expression: {type(expr)}")
+    raise InvalidBinaryOperation(expr, "UNKNOWN", None)
 
 global_environment = Environment()
 def interpret_nodes(nodes, global_environment):
@@ -84,12 +88,13 @@ def interpret_nodes(nodes, global_environment):
         elif isinstance(node, Function_Call):
             function = global_environment.get(node.name)
             if not isinstance(function, Function):
-                raise Exception(f"{node.name} is not a function")
+                raise NotCallableError(node.name)
             function_environment = Environment(parent=global_environment)
             interpret_nodes(function.body, function_environment)
 
 
-
-interpret_nodes(nodes, global_environment)
-
+try:
+    interpret_nodes(nodes, global_environment)
+except ZapError as error:
+    print(f"Zap runtime error:\n{error}")
 #print(environment)

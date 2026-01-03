@@ -2,6 +2,7 @@ from typing import Any
 
 from Token import Token
 from TokenKind import TokenKind
+from Errors.ParseErrors import UnexpectedTokenError, UnterminatedStringError
 
 source: str = """
 let x = 10;
@@ -54,7 +55,7 @@ while i < len(source):
             i += 1
 
         if i >= len(source):
-            raise Exception("Unterminated string literal")
+            raise UnterminatedStringError()
 
         tokens.append(("STRING", source[start:i]))
         i += 1
@@ -90,7 +91,7 @@ while i < len(source):
         i += 1
         continue
 
-    raise Exception(f"Unknown character: {char}")
+    raise UnexpectedTokenError(char)
 
 #print(tokens)
 
@@ -112,7 +113,7 @@ for kind, value in tokens:
     elif kind == "FUNCTION_CALL":
         parsed_tokens.append(Token(TokenKind.FUNCTION_CALL, value))
     else:
-        raise Exception(f"Unknown token: {value}")
+        raise UnexpectedTokenError(value)
 
 # for token in parsed_tokens:
 #     print(f"TokenKind: {token.kind}, Value: {token.value}")
