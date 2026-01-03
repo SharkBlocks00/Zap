@@ -48,8 +48,6 @@ def eval_expression(expr, environment):
         elif expr.operator == "!=":
             return left != right
         
-    if isinstance(expr, IfStatement):
-        return eval_expression(expr.condition, environment)
     if isinstance(expr, RequestStatement):
         return convert_input(input(expr.value.value))
     if isinstance(expr, str):
