@@ -66,7 +66,7 @@ def eval_expression(expr, environment):
 global_environment = Environment()
 def interpret_nodes(nodes, global_environment):
     for node in nodes:
-        #print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
+        print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
         if isinstance(node, VarDeclaration):
             global_environment.define(node.name, eval_expression(node.value, global_environment))
         elif isinstance(node, VarReassignment):

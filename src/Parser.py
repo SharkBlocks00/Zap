@@ -4,7 +4,7 @@ from TokenKind import TokenKind
 from Errors.ParseErrors import UnexpectedTokenError, ExpectedTokenError, ParseError
 
 def parse_statement(tokens, index): 
-    #print(f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
+    # print(f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
     # for token in tokens:
     #     print(f"TokenKind: {token.kind}, Value: {token.value}")
     token = tokens[index]
@@ -34,6 +34,13 @@ def parse_statement(tokens, index):
         #print(f"Parsed request statement: {node.value.value}")
     elif token.kind == TokenKind.KEYWORD and token.value == "while":
         node, index = parse_while(parsed_tokens, index)
+    elif token.kind == TokenKind.KEYWORD and token.value == "break":
+        index += 1
+        token = tokens[index]
+        if token.kind != TokenKind.SYMBOL or token.value != ";":
+            raise ExpectedTokenError(";", token.value if token else "end of input")
+        index += 1
+        node = "break"
     else:
         raise UnexpectedTokenError(parsed_tokens[index].value)
     return node, index

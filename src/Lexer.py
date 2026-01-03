@@ -11,6 +11,14 @@ while (count <= 5) {
     output(count);
     count = count + 1;
 }
+while (count > 0) {
+    count = count - 1;
+    if (count == 3) {
+        output("Breaking");
+        break;
+   }
+    output("Count down:");
+}
 
 """
 
@@ -27,6 +35,7 @@ keywords: list[str] = [
     "func",
     "define",
     "while",
+    "break",
 ]
 
 while i < len(source):
