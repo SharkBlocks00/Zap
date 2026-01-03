@@ -1,9 +1,6 @@
-# Zap Language
+# Zap
 
-A small interpreted programming language written in Python.
-
-Zap is a person learning project i am working on simply because i have lots of time.
-It is designed to be simple, explicit, stupidly verbose rather than fast / feature complete.
+A small, dynamically-typed interpreted programming language written in Python. This project is a learning exercise in building a language from scratch.
 
 ---
 
@@ -14,12 +11,11 @@ It is designed to be simple, explicit, stupidly verbose rather than fast / featu
 - [Language Syntax](#language-syntax)
   - [Comments](#comments)
   - [Variables](#variables)
-  - [Reassigment](#reassignment)
-  - [Output](#output)
-  - [User Input](#user-input)
-- [Types](#types)
-- [Semantics](#semantics)
-- [Error Handling](#error-handling)
+  - [Data Types](#data-types)
+  - [Operators](#operators)
+  - [Control Flow](#control-flow)
+  - [Functions](#functions)
+  - [Input/Output](#inputoutput)
 - [Implementation](#implementation)
 - [Future Ideas](#future-ideas)
 
@@ -27,157 +23,145 @@ It is designed to be simple, explicit, stupidly verbose rather than fast / featu
 
 ## Overview
 
-Zap is a line based interpreted language with not a lot of syntax. </br>
-Programs execute top to bottom, and all variables are stored in a global table.
+Zap is a simple, line-based interpreted language. Programs are executed from top to bottom. It is designed to be simple and explicit.
 
 Zap supports:
 
 - Variable declaration and reassignment
-- Runtime type inference
-- Console output
-- user input
-- Comments
-- Basic syntax validation stuff
+- Basic data types: Numbers, Strings, and Booleans
+- Arithmetic and comparison operators
+- Conditional statements (`if`/`elseif`/`else`)
+- Functions (without parameters or return values)
+- Console input and output
+- Single-line comments
 
 ---
 
 ## Example
 
-````zap
-let hi = 3;
-output(hi);
+```zap
+-- This is a Zap program
 
-let name = "bob";
-output(name);
+let name = request("What is your name? ");
+output("Hello, " + name + "!");
 
-let person = name;
-output(person);
+let a = 10;
+let b = 20;
 
-res name = "bill";
-res hi = name;
+if (a < b) {
+    output("a is less than b");
+} elseif (a > b) {
+    output("a is greater than b");
+} else {
+    output("a is equal to b");
+}
 
-output(name);
-output(person);
-output(hi);
+func say_hello = define() {
+    output("Hello from a function!");
+}
 
-let test = request("How are you? ");
-output(test);
+say_hello();
+```
 
-res name = request("What is your name? ");
-output(name);
-````
 ---
 
 ## Language Syntax
 
+All statements must end with a semicolon `;`.
+
 ### Comments
-Comments begin with a ``--``.
-````zap
+Single-line comments start with `--`.
+
+```zap
 -- This is a comment
-output("Hello"); -- Inline comment
-````
-Fully commented lines are ignored by the interpreter.
+output("Hello"); -- This is an inline comment
+```
 
 ### Variables
-Variables are declared using the ``let`` keyword.
+
+Variables are declared using the `let` keyword and can be reassigned using just their name.
+
 ```zap
-let x = 3;
-let name = "bob";
-```
-Rules:
-- Variables myust be declared before use
-- Redeclaring an existing variable error
-- Every statement must end with a semicolon
+-- Declaration
+let x = 10;
+let message = "Hello";
 
-### Reassignment
-Variables can be reassigned using the ``res`` keyword.
-```zap
-res x = 10;
-res name = "bill";
-```
-Rules:
-- The variable must already exist
-- Reassignment replaces the variable's value
-
-### Output
-Use ``output()`` to print to the console.
-````zap
-output("hello");
-output(x);
-````
-Accepted values:
-- String literals
-- Variables
-
-Concatenated strings are not <i>yet</i> supported.
-
-### User input
-User ``request()`` to prompt the user for input.
-````zig 
-let answer = request("How are you? ");
-output(answer);
-````
-Notes:
-- ``request()`` returns user input
-- Input is stored like any other variable
-
---- 
-
-## Types
-Zap is dynamically typed, <i>for now</i>, and performs runtime type inference.
-
-Supported types:
-- int
-- float
-- str
-
-Types  are inferred on assignment.
-Variables may change type when reassigned.
-
----
-
-## Semantics
-- Zap uses value semantics
-- Assigning one variable to another copies the value
-- Identifiers resolve to values, not references
-- There is one single global scope
-
-Example:
-```zap
-let a = "bob";
-let b = a;
-res = "bill";
-
-output(b); -- will still print "bob"
+-- Reassignment
+x = 20;
+message = "World";
 ```
 
---- 
+### Data Types
 
-## Error handling
-Zap has some error handling, and reports syntax errors such as:
-- Missing semicolons
-- Invalid reassignment
-- Undefined variables
-- Malformed ``output()`` or ``request()`` calls
-- Unequal or invalid parentheses
+Zap supports the following data types:
+- **Number**: e.g., `10`, `3.14` (Note: float literals are not supported yet, but `request()` can produce floats)
+- **String**: e.g., `"Hello, World!"`
+- **Boolean**: `true`, `false`
 
-Most errors will include column and line numbers, but some may not.
+### Operators
+
+Zap supports the following operators:
+
+- **Arithmetic**: `+` (addition and string concatenation), `-` (subtraction), `*` (multiplication), `/` (division)
+- **Comparison**: `==` (equal to), `!=` (not equal to), `<` (less than), `>` (greater than), `<=` (less than or equal to), `>=` (greater than or equal to)
+
+### Control Flow
+
+Conditional logic is handled using `if`, `elseif`, and `else` statements.
+
+```zap
+if (x > 0) {
+    output("x is positive");
+} elseif (x < 0) {
+    output("x is negative");
+} else {
+    output("x is zero");
+}
+```
+
+### Functions
+
+Functions can be declared and called. Currently, they do not support parameters or return values.
+
+```zap
+func my_function = define() {
+    output("This is inside a function!");
+}
+
+my_function();
+```
+
+### Input/Output
+
+- **Output**: Use `output()` to print to the console.
+- **Input**: Use `request()` to get input from the user.
+
+```zap
+output("Hello, World!");
+
+let name = request("Enter your name: ");
+output("Hello, " + name);
+```
 
 ---
 
 ## Implementation
-- Zap is written entirely in Python
-- No external parsing/ lexer libraries
-- Manual parsing and interpretation
-- Only really uses loads of string & list indexing methods
-- Not a tokenized language
+
+- **Core**: Zap is written entirely in Python without any external dependencies.
+- **Lexer**: The source code is first processed by a lexer that turns the text into a stream of tokens.
+- **Parser**: A recursive descent parser builds an Abstract Syntax Tree (AST) from the token stream.
+- **Interpreter**: The AST is traversed by an interpreter which executes the code.
+- **Scoping**: The language supports a global scope and block-level scopes for functions and control flow statements.
 
 ---
 
-## Future ideas
-Here are some ideas that potentially will be added:
-- Arithmetic expressions
-- Conditionals
-- Loops
-- Functions
-- Lexer / tokenizer
+## Future Ideas
+
+Check out [roadmap.md](roadmap.md) for more.
+
+- Loops (`while`, `for`)
+- Function parameters and `return` statements
+- More built-in functions
+- Arrays or lists
+- Floating point number literals
+- More detailed error messages
