@@ -5,19 +5,13 @@ from TokenKind import TokenKind
 from Errors.ParseErrors import UnexpectedTokenError, UnterminatedStringError
 
 source: str = """
-let x = 10;
-output(x); -- plz dont break
-if (true) { -- still plz dont break
-    output("Condition is true");
-} else {
-    output("Condition is false");
+let count = 0;
+while (count <= 5) {
+    output("Count is:");
+    output(count);
+    count = count + 1;
 }
-func greet = define() {
-    output("Hello, World!");
-}
-greet();
-let name = request("Enter your name: ");
-output("Hello " + name + "!");
+
 """
 
 i: int = 0
@@ -32,6 +26,7 @@ keywords: list[str] = [
     "elseif",
     "func",
     "define",
+    "while",
 ]
 
 while i < len(source):
@@ -63,7 +58,7 @@ while i < len(source):
 
     if char.isalpha():
         start = i
-        while i < len(source) and source[i].isalnum():
+        while i < len(source) and source[i].isalnum() or source[i] == "_" or source[i] == "-":
             i += 1
         
         if source[start:i] == "true" or source[start:i] == "false":
@@ -117,5 +112,3 @@ for kind, value in tokens:
 
 # for token in parsed_tokens:
 #     print(f"TokenKind: {token.kind}, Value: {token.value}")
-
-

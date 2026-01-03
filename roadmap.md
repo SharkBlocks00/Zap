@@ -61,7 +61,7 @@ simple implement a comment ``TokenKind`` and check in the program if there is a 
 ---  
 
 ## While Loops
-### - [ ] Completed
+### - [X] Completed
 
 While loops are a pretty prominent feature of good programming languages, so therefore zap needs them. Syntax kept relatively simple, ie ``while (<condition>) { <body> }``.
 Probably follow similar logic to if statements/functions, however simply checking if the condition is still true on each run of the loop. This will also involve adding in 

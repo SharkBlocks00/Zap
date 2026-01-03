@@ -67,3 +67,8 @@ class Function_Call(ASTNode):
 class RequestStatement(ASTNode):
     def __init__(self, value):
         self.value = value
+
+class WhileLoop(ASTNode):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body

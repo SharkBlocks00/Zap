@@ -1,5 +1,5 @@
 from Lexer import parsed_tokens
-from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, RequestStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression, Function_Call
+from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, RequestStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression, Function_Call, WhileLoop
 from TokenKind import TokenKind
 from Errors.ParseErrors import UnexpectedTokenError, ExpectedTokenError, ParseError
 
@@ -32,6 +32,8 @@ def parse_statement(tokens, index):
     elif token.kind == TokenKind.KEYWORD and token.value == "request":
         node, index = parse_request(parsed_tokens, index)
         #print(f"Parsed request statement: {node.value.value}")
+    elif token.kind == TokenKind.KEYWORD and token.value == "while":
+        node, index = parse_while(parsed_tokens, index)
     else:
         raise UnexpectedTokenError(parsed_tokens[index].value)
     return node, index
@@ -196,6 +198,32 @@ def parse_request(tokens, index):
         raise ExpectedTokenError(")", token.value if token else "end of input")
     index += 1
     return RequestStatement(request_data), index
+
+def parse_while(tokens, index):
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "(":
+        raise ExpectedTokenError("(", token.value if token else "end of input")
+    index += 1
+    token = tokens[index]
+    condition, index = parse_expression(tokens, index)
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != ")":
+        raise ExpectedTokenError(")", token.value if token else "end of input")
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != "{":
+        raise ExpectedTokenError("{", token.value if token else "end of input")
+    index += 1
+    body_nodes = []
+    token = tokens[index]
+    
+    while token.value != "}":
+        stmt, index = parse_statement(tokens, index)
+        body_nodes.append(stmt)
+        token = tokens[index]
+    index += 1
+    return WhileLoop(condition, body_nodes), index
 
 def parse_if(tokens, index):
     index += 1

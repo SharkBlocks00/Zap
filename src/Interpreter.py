@@ -1,5 +1,5 @@
 from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, RequestStatement, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call
+from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, RequestStatement, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call, WhileLoop
 from classes.Environment import Environment
 from Errors.Errors import ZapError
 from Errors.RuntimeErrors import UndefinedVariableError, InvalidAssignmentError, NotCallableError
@@ -91,7 +91,10 @@ def interpret_nodes(nodes, global_environment):
                 raise NotCallableError(node.name)
             function_environment = Environment(parent=global_environment)
             interpret_nodes(function.body, function_environment)
-
+        elif isinstance(node, WhileLoop):
+            while eval_expression(node.condition, global_environment):
+                block_environment = Environment(parent=global_environment)
+                interpret_nodes(node.body, block_environment)
 
 try:
     interpret_nodes(nodes, global_environment)
