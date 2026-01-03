@@ -66,7 +66,9 @@ def eval_expression(expr, environment):
 global_environment = Environment()
 def interpret_nodes(nodes, global_environment):
     for node in nodes:
-        print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
+        #print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
+        if node == "break":
+            return "BREAK"
         if isinstance(node, VarDeclaration):
             global_environment.define(node.name, eval_expression(node.value, global_environment))
         elif isinstance(node, VarReassignment):
@@ -74,15 +76,18 @@ def interpret_nodes(nodes, global_environment):
         elif isinstance(node, OutputStatement):
             print(eval_expression(node.value, global_environment))
         elif isinstance(node, IfStatement):
+            result = None
             if eval_expression(node.condition, global_environment):
                 block_environment = Environment(parent=global_environment)
-                interpret_nodes(node.body, block_environment)
+                result = interpret_nodes(node.body, block_environment)
             elif node.else_body:
                 if isinstance(node.else_body, IfStatement):
-                    interpret_nodes([node.else_body], global_environment)
+                    result = interpret_nodes([node.else_body], global_environment)
                 else:
                     block_environment = Environment(parent=global_environment)
-                    interpret_nodes(node.else_body, block_environment)
+                    result = interpret_nodes(node.else_body, block_environment)
+            if result == "BREAK":
+                return "BREAK"
         elif isinstance(node, Function):
             global_environment.define(node.name, node)
         elif isinstance(node, Function_Call):
@@ -94,7 +99,9 @@ def interpret_nodes(nodes, global_environment):
         elif isinstance(node, WhileLoop):
             while eval_expression(node.condition, global_environment):
                 block_environment = Environment(parent=global_environment)
-                interpret_nodes(node.body, block_environment)
+                result = interpret_nodes(node.body, block_environment)
+                if result == "BREAK":
+                    break
 
 try:
     interpret_nodes(nodes, global_environment)
