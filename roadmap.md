@@ -69,8 +69,8 @@ some new keywords, such as ``break``, ``continue`` and possibly even ``return``,
 
 ---
 
-## For Loops
-### - [ ] Completed
+## Foreach Loops
+### - [X] Completed
 
 As with while loops, for loops are also a necessary feature of good programming languages. For loops will also probably follow if statement/function/while loop (if implemented)
 structure, except incrementing for each something. Possible syntax could be something like ``for (char : string) { <body> }`` Implementation of for loops will 

@@ -1,5 +1,5 @@
 from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, RequestStatement, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call, WhileLoop
+from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, RequestStatement, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call, WhileLoop, ForeachLoop
 from classes.Environment import Environment
 from Errors.Errors import ZapError
 from Errors.RuntimeErrors import UndefinedVariableError, InvalidAssignmentError, NotCallableError
@@ -102,6 +102,16 @@ def interpret_nodes(nodes, global_environment):
                 result = interpret_nodes(node.body, block_environment)
                 if result == "BREAK":
                     break
+        elif isinstance(node, ForeachLoop):
+            collection = eval_expression(node.collection, global_environment)
+            for item in collection:
+                block_environment = Environment(parent=global_environment)
+                block_environment.define(node.var_name, item)
+                result = interpret_nodes(node.body, block_environment)
+                if result == "BREAK":
+                    break
+
+
 
 try:
     interpret_nodes(nodes, global_environment)

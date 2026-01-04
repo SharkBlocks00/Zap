@@ -6,6 +6,7 @@ from Errors.ParseErrors import UnexpectedTokenError, UnterminatedStringError
 
 source: str = """
 let count = 0;
+let str = "Hello World!";
 while (count <= 5) {
     output("Count is:");
     output(count);
@@ -18,6 +19,9 @@ while (count > 0) {
         break;
    }
     output("Count down:");
+}
+foreach (char : str) {
+    output(char);
 }
 
 """
@@ -36,6 +40,7 @@ keywords: list[str] = [
     "define",
     "while",
     "break",
+    "foreach",
 ]
 
 while i < len(source):
@@ -86,7 +91,7 @@ while i < len(source):
         tokens.append(("NUMBER", source[start:i]))
         continue
 
-    if char in ["=", ";", "(", ")", "{", "}", "+", "-", "*", "/", "==", "!=", "<", ">", "<=", ">="]:
+    if char in ["=", ";", "(", ")", "{", "}", "+", "-", "*", "/", "==", "!=", "<", ">", "<=", ">=", ":"]:
         if char in ["=", "!", "<", ">"] and i + 1 < len(source) and source[i + 1] == "=":
             tokens.append(("SYMBOL", char + "="))
             i += 2
@@ -119,5 +124,5 @@ for kind, value in tokens:
     else:
         raise UnexpectedTokenError(value)
 
-# for token in parsed_tokens:
-#     print(f"TokenKind: {token.kind}, Value: {token.value}")
+for token in parsed_tokens:
+    print(f"TokenKind: {token.kind}, Value: {token.value}")

@@ -72,3 +72,9 @@ class WhileLoop(ASTNode):
     def __init__(self, condition, body):
         self.condition = condition
         self.body = body
+
+class ForeachLoop(ASTNode):
+    def __init__(self, var_name, collection, body):
+        self.var_name = var_name
+        self.collection = collection
+        self.body = body
