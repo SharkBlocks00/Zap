@@ -27,6 +27,7 @@ A small, dynamically-typed interpreted programming language written in Python. T
 ## Overview
 
 Zap is a simple, line-based interpreted language. Programs are executed from top to bottom. It is designed to be simple and explicit.
+In Zap source files, formatting may appear as "unique" but that is due to the Zed editor auto formatting code like this.
 
 Zap supports:
 
@@ -46,7 +47,7 @@ Zap supports:
 ## How to Run  
 
 At the moment, as Zap is in its early stages, you can only run zap code by putting it into the `source: str = """ <your code here> """`
-and running the interpreter.  This is most definately suboptimal, and will 100% be changed/updated in future releases.
+and running the interpreter.  This is most definately suboptimal, and will 100% be changed/updated in future releases. 
 
 ---
 

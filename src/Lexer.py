@@ -23,6 +23,10 @@ while (count > 0) {
 foreach (char : str) {
     output(char);
 }
+func greet = define() {
+    output("Hello");
+}
+greet();
 """
 
 i: int = 0

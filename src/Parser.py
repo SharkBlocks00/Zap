@@ -32,7 +32,7 @@ def parse_statement(tokens, index):
         and tokens[index + 1].kind == TokenKind.SYMBOL
         and tokens[index + 1].value == "("
     ):
-        node, index - parse_function(parsed_tokens, index)
+        node, index = parse_function(parsed_tokens, index)
     elif token.kind == TokenKind.IDENTIFIER:
         # print(f"Parsed identifier token: {parsed_tokens[index].value}")
         node, index = parse_res(parsed_tokens, index)
