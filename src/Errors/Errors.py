@@ -4,7 +4,7 @@ class ZapError(Exception):
         self.line = line
         self.column = column
         super().__init__(self.__str__())
-        
+
     def __str__(self):
         location = ""
         if self.line is not None:

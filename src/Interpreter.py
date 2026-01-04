@@ -1,9 +1,25 @@
-from Parser import nodes
-from AST import VarDeclaration, VarReassignment, OutputStatement, NumberLiteral, StringLiteral, RequestStatement, Identifier, BinaryExpression, IfStatement, BooleanLiteral, BooleanExpression, Function, Function_Call, WhileLoop, ForeachLoop
+from AST import (
+    BinaryExpression,
+    BooleanExpression,
+    BooleanLiteral,
+    ForeachLoop,
+    Function,
+    Function_Call,
+    Identifier,
+    IfStatement,
+    NumberLiteral,
+    OutputStatement,
+    RequestStatement,
+    StringLiteral,
+    VarDeclaration,
+    VarReassignment,
+    WhileLoop,
+)
 from classes.Environment import Environment
 from Errors.Errors import ZapError
-from Errors.RuntimeErrors import UndefinedVariableError, InvalidAssignmentError, NotCallableError
-from Errors.TypeErrors import InvalidBinaryOperation, InvalidFunctionArgumentType
+from Errors.RuntimeErrors import NotCallableError
+from Errors.TypeErrors import InvalidBinaryOperation
+from Parser import nodes
 
 
 def convert_input(value):
@@ -11,8 +27,9 @@ def convert_input(value):
         return int(value)
     try:
         return float(value)
-    except:
+    except ValueError:
         return value
+
 
 def eval_expression(expr, environment):
     if isinstance(expr, NumberLiteral):
@@ -28,7 +45,7 @@ def eval_expression(expr, environment):
         right = eval_expression(expr.right, environment)
 
         if expr.operator == "+":
-            return left + right 
+            return left + right
         elif expr.operator == "-":
             return left - right
         elif expr.operator == "*":
@@ -38,41 +55,48 @@ def eval_expression(expr, environment):
     if isinstance(expr, BooleanExpression):
         left = eval_expression(expr.left, environment)
         right = eval_expression(expr.right, environment)
-        
+
         if expr.operator == "==":
-            return left == right 
+            return left == right
         elif expr.operator == "<":
-            return left < right 
+            return left < right
         elif expr.operator == ">":
-            return left > right 
+            return left > right
         elif expr.operator == "<=":
-            return left <= right 
+            return left <= right
         elif expr.operator == ">=":
             return left >= right
         elif expr.operator == "!=":
             return left != right
-        
+
     if isinstance(expr, RequestStatement):
         return convert_input(input(expr.value.value))
     if isinstance(expr, str):
         return expr
     if isinstance(expr, int) or isinstance(expr, float):
-        return expr 
+        return expr
     if isinstance(expr, bool):
         return expr
-    
+
     raise InvalidBinaryOperation(expr, "UNKNOWN", None)
 
+
 global_environment = Environment()
+
+
 def interpret_nodes(nodes, global_environment):
     for node in nodes:
-        #print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
+        # print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
         if node == "break":
             return "BREAK"
         if isinstance(node, VarDeclaration):
-            global_environment.define(node.name, eval_expression(node.value, global_environment))
+            global_environment.define(
+                node.name, eval_expression(node.value, global_environment)
+            )
         elif isinstance(node, VarReassignment):
-            global_environment.assign(node.name, eval_expression(node.value, global_environment))
+            global_environment.assign(
+                node.name, eval_expression(node.value, global_environment)
+            )
         elif isinstance(node, OutputStatement):
             print(eval_expression(node.value, global_environment))
         elif isinstance(node, IfStatement):
@@ -112,9 +136,8 @@ def interpret_nodes(nodes, global_environment):
                     break
 
 
-
 try:
     interpret_nodes(nodes, global_environment)
 except ZapError as error:
     print(f"Zap {error.__class__.__name__}:\n{error}")
-#print(environment)
+# print(environment)

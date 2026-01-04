@@ -1,12 +1,13 @@
 from Errors.RuntimeErrors import UndefinedVariableError
 
+
 class Environment:
     def __init__(self, parent=None):
         self.variables = {}
-        self.parent = parent 
+        self.parent = parent
 
     def define(self, name, value):
-        self.variables[name] = value 
+        self.variables[name] = value
 
     def assign(self, name, value):
         if name in self.variables:
@@ -15,7 +16,7 @@ class Environment:
             self.parent.assign(name, value)
         else:
             raise UndefinedVariableError(name)
-    
+
     def get(self, name):
         if name in self.variables:
             return self.variables[name]

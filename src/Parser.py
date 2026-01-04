@@ -1,19 +1,40 @@
+from AST import (
+    BinaryExpression,
+    BooleanExpression,
+    BooleanLiteral,
+    ForeachLoop,
+    Function,
+    Function_Call,
+    Identifier,
+    IfStatement,
+    NumberLiteral,
+    OutputStatement,
+    RequestStatement,
+    StringLiteral,
+    VarDeclaration,
+    VarReassignment,
+    WhileLoop,
+)
+from Errors.ParseErrors import ExpectedTokenError, ParseError, UnexpectedTokenError
 from Lexer import parsed_tokens
-from AST import BinaryExpression, BooleanLiteral, VarReassignment, VarDeclaration, OutputStatement, RequestStatement, NumberLiteral, StringLiteral, IfStatement, Function, Identifier, Expression, BooleanExpression, Function_Call, WhileLoop, ForeachLoop
 from TokenKind import TokenKind
-from Errors.ParseErrors import UnexpectedTokenError, ExpectedTokenError, ParseError
 
-def parse_statement(tokens, index): 
+
+def parse_statement(tokens, index):
     # print(f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
     # for token in tokens:
     #     print(f"TokenKind: {token.kind}, Value: {token.value}")
     token = tokens[index]
     if token.kind == TokenKind.KEYWORD and token.value == "let":
         node, index = parse_let(parsed_tokens, index)
-    elif token.kind == TokenKind.IDENTIFIER and tokens[index + 1].kind == TokenKind.SYMBOL and tokens[index + 1].value == "(":
+    elif (
+        token.kind == TokenKind.IDENTIFIER
+        and tokens[index + 1].kind == TokenKind.SYMBOL
+        and tokens[index + 1].value == "("
+    ):
         node, index - parse_function(parsed_tokens, index)
     elif token.kind == TokenKind.IDENTIFIER:
-       #print(f"Parsed identifier token: {parsed_tokens[index].value}")
+        # print(f"Parsed identifier token: {parsed_tokens[index].value}")
         node, index = parse_res(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "output":
         node, index = parse_output(parsed_tokens, index)
@@ -27,11 +48,11 @@ def parse_statement(tokens, index):
         node, index = parse_function(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "define":
         raise UnexpectedTokenError("define")
-    elif token.kind == TokenKind.FUNCTION_CALL: 
+    elif token.kind == TokenKind.FUNCTION_CALL:
         node, index = parse_function_call(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "request":
         node, index = parse_request(parsed_tokens, index)
-        #print(f"Parsed request statement: {node.value.value}")
+        # print(f"Parsed request statement: {node.value.value}")
     elif token.kind == TokenKind.KEYWORD and token.value == "while":
         node, index = parse_while(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "break":
@@ -47,33 +68,49 @@ def parse_statement(tokens, index):
         raise UnexpectedTokenError(parsed_tokens[index].value)
     return node, index
 
+
 def parse_expression(tokens, index):
     return parse_comparison(tokens, index)
+
 
 def parse_addition(tokens, index):
     left, index = parse_multiplication(tokens, index)
 
-    while (index < len(tokens) and tokens[index].kind == TokenKind.SYMBOL and tokens[index].value in "+-"):
+    while (
+        index < len(tokens)
+        and tokens[index].kind == TokenKind.SYMBOL
+        and tokens[index].value in "+-"
+    ):
         operator = tokens[index].value
         right, index = parse_multiplication(tokens, index + 1)
         left = BinaryExpression(left, operator, right)
 
     return left, index
 
+
 def parse_multiplication(tokens, index):
     left, index = parse_primary(tokens, index)
 
-    while ( index < len(tokens) and tokens[index].kind == TokenKind.SYMBOL and tokens[index].value in "*/"):
+    while (
+        index < len(tokens)
+        and tokens[index].kind == TokenKind.SYMBOL
+        and tokens[index].value in "*/"
+    ):
         operator = tokens[index].value
         right, index = parse_primary(tokens, index + 1)
         left = BinaryExpression(left, operator, right)
 
     return left, index
 
+
 def parse_comparison(tokens, index):
     left, index = parse_addition(tokens, index)
 
-    while (index < len(tokens) and tokens[index].kind == TokenKind.SYMBOL and tokens[index].value in ["==", "!=", "<", ">", "<=", ">="]):
+    while (
+        index < len(tokens)
+        and tokens[index].kind == TokenKind.SYMBOL
+        and tokens[index].value in ["==", "!=", "<", ">", "<=", ">="]
+    ):
         operator = tokens[index].value
         right, index = parse_addition(tokens, index + 1)
         left = BooleanExpression(left, operator, right)
@@ -82,7 +119,7 @@ def parse_comparison(tokens, index):
 
 
 def parse_primary(tokens, index):
-    #print(f"Debug: Token before: {tokens[index-1].value if index > 0 else 'None'}, Current: {tokens[index].value}, Next: {tokens[index+1].value if index + 1 < len(tokens) else 'None'}")
+    # print(f"Debug: Token before: {tokens[index-1].value if index > 0 else 'None'}, Current: {tokens[index].value}, Next: {tokens[index+1].value if index + 1 < len(tokens) else 'None'}")
     token = tokens[index]
 
     if token.kind == TokenKind.NUMBER:
@@ -93,7 +130,7 @@ def parse_primary(tokens, index):
         return StringLiteral(token.value), index + 1
     if token.kind == TokenKind.IDENTIFIER:
         return Identifier(token.value), index + 1
-    
+
     if token.kind == TokenKind.KEYWORD and token.value == "request":
         return parse_request(tokens, index)
 
@@ -103,12 +140,13 @@ def parse_primary(tokens, index):
         if tokens[index].kind != TokenKind.SYMBOL or tokens[index].value != ")":
             raise UnexpectedTokenError(tokens[index].value)
 
-        return expr, index 
+        return expr, index
 
     raise UnexpectedTokenError(token.value)
 
+
 def parse_let(tokens, index):
-    #print(tokens[index])
+    # print(tokens[index])
     token = tokens[index]
     if token.kind != TokenKind.KEYWORD or token.value != "let":
         raise ExpectedTokenError("let", token.value if token else "end of input")
@@ -118,28 +156,28 @@ def parse_let(tokens, index):
     if token.kind != TokenKind.IDENTIFIER:
         raise ExpectedTokenError("identifier", token.value)
 
-
     var_name = token.value
-    #print(f"Variable {var_name}")
+    # print(f"Variable {var_name}")
     index += 1
     token = tokens[index]
-    #print(f"Token: {token.kind}, Value: {token.value}")
+    # print(f"Token: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != "=":
         raise ExpectedTokenError("=", token.value)
 
-    index += 1 
+    index += 1
     value, index = parse_expression(tokens, index)
 
-    #print(f"Parsed value for variable '{var_name}': {value}")
-    #print(f"Token: {tokens[index].kind}, Value: {tokens[index].value}")
+    # print(f"Parsed value for variable '{var_name}': {value}")
+    # print(f"Token: {tokens[index].kind}, Value: {tokens[index].value}")
     token = tokens[index]
-    #print(f"Token at end of let: {token.kind}, Value: {token.value}")
+    # print(f"Token at end of let: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise ExpectedTokenError(";", token.value)
 
     index += 1
 
     return VarDeclaration(var_name, value), index
+
 
 def parse_res(tokens, index):
     token = tokens[index]
@@ -162,10 +200,10 @@ def parse_res(tokens, index):
 
     index += 1
 
-    return  VarReassignment(var_name, value), index
+    return VarReassignment(var_name, value), index
+
 
 def parse_output(tokens, index):
-
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
@@ -173,19 +211,19 @@ def parse_output(tokens, index):
 
     index += 1
     token = tokens[index]
-    #print(f"Token at start of output expression: {token.value}, TokenKind: {token.kind}")
+    # print(f"Token at start of output expression: {token.value}, TokenKind: {token.kind}")
     output_data, index = parse_expression(tokens, index)
-    #print(f"Output data parsed: {output_data}")
+    # print(f"Output data parsed: {output_data}")
     token = tokens[index]
-    #print(f"Token: {token.value}, TokenKind: {token.kind}")
+    # print(f"Token: {token.value}, TokenKind: {token.kind}")
 
     if token.kind != TokenKind.SYMBOL or token.value != ")":
         raise ExpectedTokenError(")", token.value if token else "end of input")
-    
+
     index += 1
     token = tokens[index]
 
-    #print(f"Token: {tokens[index + 1]}")
+    # print(f"Token: {tokens[index + 1]}")
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise ExpectedTokenError(";", token.value if token else "end of input")
 
@@ -193,9 +231,10 @@ def parse_output(tokens, index):
 
     return OutputStatement(output_data), index
 
+
 def parse_request(tokens, index):
     index += 1
-    #print(f"Tokens: {tokens[index+1:]}")
+    # print(f"Tokens: {tokens[index+1:]}")
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
         raise ExpectedTokenError("(", token.value if token else "end of input")
@@ -207,6 +246,7 @@ def parse_request(tokens, index):
         raise ExpectedTokenError(")", token.value if token else "end of input")
     index += 1
     return RequestStatement(request_data), index
+
 
 def parse_while(tokens, index):
     index += 1
@@ -226,13 +266,14 @@ def parse_while(tokens, index):
     index += 1
     body_nodes = []
     token = tokens[index]
-    
+
     while token.value != "}":
         stmt, index = parse_statement(tokens, index)
         body_nodes.append(stmt)
         token = tokens[index]
     index += 1
     return WhileLoop(condition, body_nodes), index
+
 
 def parse_foreach(tokens, index):
     index += 1
@@ -259,7 +300,7 @@ def parse_foreach(tokens, index):
     index += 1
     body_nodes = []
     token = tokens[index]
-    
+
     while token.value != "}":
         stmt, index = parse_statement(tokens, index)
         body_nodes.append(stmt)
@@ -268,10 +309,9 @@ def parse_foreach(tokens, index):
     return ForeachLoop(var_name, collection, body_nodes), index
 
 
-
 def parse_if(tokens, index):
     index += 1
-    token = tokens[index] 
+    token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
         raise ExpectedTokenError("(", token.value if token else "end of input")
 
@@ -289,7 +329,7 @@ def parse_if(tokens, index):
     index += 1
     body_nodes = []
     token = tokens[index]
-    
+
     while token.value != "}":
         stmt, index = parse_statement(tokens, index)
         body_nodes.append(stmt)
@@ -298,12 +338,19 @@ def parse_if(tokens, index):
 
     else_branch = None
 
-
-    if index < len(tokens) and tokens[index].kind == TokenKind.KEYWORD and tokens[index].value == "elseif":
+    if (
+        index < len(tokens)
+        and tokens[index].kind == TokenKind.KEYWORD
+        and tokens[index].value == "elseif"
+    ):
         else_branch, index = parse_if(tokens, index)
         return IfStatement(condition, body_nodes, else_branch), index
 
-    elif index < len(tokens) and tokens[index].kind == TokenKind.KEYWORD and tokens[index].value == "else":
+    elif (
+        index < len(tokens)
+        and tokens[index].kind == TokenKind.KEYWORD
+        and tokens[index].value == "else"
+    ):
         index += 1
         token = tokens[index]
         if token.kind != TokenKind.SYMBOL or token.value != "{":
@@ -321,8 +368,9 @@ def parse_if(tokens, index):
         return IfStatement(condition, body_nodes, else_branch), index
     return IfStatement(condition, body_nodes, None), index
 
+
 def parse_function(tokens, index):
-    #print(f"Parsing function at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
+    # print(f"Parsing function at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
     index += 1
     try:
         token = tokens[index]
@@ -363,6 +411,7 @@ def parse_function(tokens, index):
     index += 1
     return Function(func_name, [], body_nodes), index
 
+
 def parse_function_call(tokens, index):
     token = tokens[index]
     function_name = token.value
@@ -381,11 +430,12 @@ def parse_function_call(tokens, index):
     index += 1
     return Function_Call(function_name), index
 
+
 index = 0
 nodes = []
 
 while index < len(parsed_tokens):
-    #print(f"Parsed tokens: {parsed_tokens}")
-    #print(parsed_tokens[index].kind, parsed_tokens[index].value)
+    # print(f"Parsed tokens: {parsed_tokens}")
+    # print(parsed_tokens[index].kind, parsed_tokens[index].value)
     node, index = parse_statement(parsed_tokens, index)
     nodes.append(node)

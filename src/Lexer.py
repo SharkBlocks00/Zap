@@ -1,10 +1,10 @@
 from typing import Any
 
+from Errors.ParseErrors import UnexpectedTokenError, UnterminatedStringError
 from Token import Token
 from TokenKind import TokenKind
-from Errors.ParseErrors import UnexpectedTokenError, UnterminatedStringError
 
-source: str = """ 
+source: str = """
 let count = 0;
 let str = "Hello World!";
 while (count <= 5) {
@@ -52,7 +52,6 @@ while i < len(source):
         i += 1
         continue
 
-
     if char.isspace():
         i += 1
         continue
@@ -62,7 +61,6 @@ while i < len(source):
             i += 1
         continue
 
-
     if char == '"':
         i += 1
         start = i
@@ -71,7 +69,7 @@ while i < len(source):
             i += 1
 
         if i >= len(source):
-            raise UnterminatedStringError(line=line_count+1)
+            raise UnterminatedStringError(line=line_count + 1)
 
         tokens.append(("STRING", source[start:i]))
         i += 1
@@ -79,15 +77,20 @@ while i < len(source):
 
     if char.isalpha():
         start = i
-        while i < len(source) and source[i].isalnum() or source[i] == "_" or source[i] == "-":
+        while (
+            i < len(source)
+            and source[i].isalnum()
+            or source[i] == "_"
+            or source[i] == "-"
+        ):
             i += 1
-        
+
         if source[start:i] == "true" or source[start:i] == "false":
             tokens.append(("BOOLEAN", source[start:i]))
-        elif source[start:i+1].endswith("(") and not source[start:i] in keywords:
+        elif source[start : i + 1].endswith("(") and source[start:i] not in keywords:
             tokens.append(("FUNCTION_CALL", source[start:i]))
         else:
-            #print(f"Identified identifier: {source[start:i+1]}")
+            # print(f"Identified identifier: {source[start:i+1]}")
             tokens.append(("IDENTIFIER", source[start:i]))
         continue
 
@@ -99,7 +102,11 @@ while i < len(source):
         continue
 
     if char in ["=", ";", "(", ")", "{", "}", "+", "-", "*", "/", "!", "<", ">", ":"]:
-        if char in ["=", "!", "<", ">"] and i + 1 < len(source) and source[i + 1] == "=":
+        if (
+            char in ["=", "!", "<", ">"]
+            and i + 1 < len(source)
+            and source[i + 1] == "="
+        ):
             tokens.append(("SYMBOL", char + "="))
             i += 2
             continue
@@ -107,9 +114,9 @@ while i < len(source):
         i += 1
         continue
 
-    raise UnexpectedTokenError(char, line=line_count+1)
+    raise UnexpectedTokenError(char, line=line_count + 1)
 
-#print(tokens)
+# print(tokens)
 
 parsed_tokens: list[Any] = []
 
@@ -133,4 +140,4 @@ for kind, value in tokens:
 
 # for token in parsed_tokens:
 #     print(f"TokenKind: {token.kind}, Value: {token.value}")
-#print(f"Line count: {line_count}")
+# print(f"Line count: {line_count}")
