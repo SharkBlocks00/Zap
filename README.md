@@ -7,6 +7,7 @@ A small, dynamically-typed interpreted programming language written in Python. T
 ## Table of contents
 
 - [Overview](#overview)
+- [How to Run](#how-to-run)
 - [Example](#example)
 - [Language Syntax](#language-syntax)
   - [Comments](#comments)
@@ -21,7 +22,7 @@ A small, dynamically-typed interpreted programming language written in Python. T
 - [Implementation](#implementation)
 - [Future Ideas](#future-ideas)
 
---- 
+---
 
 ## Overview
 
@@ -39,6 +40,13 @@ Zap supports:
 - Single-line comments
 - Block-level scoping
 - `break` statement to exit loops early
+
+---
+
+## How to Run  
+
+At the moment, as Zap is in its early stages, you can only run zap code by putting it into the `source: str = """ <your code here> """`
+and running the interpreter.  This is most definately suboptimal, and will 100% be changed/updated in future releases.
 
 ---
 
@@ -75,6 +83,7 @@ say_hello();
 All statements must end with a semicolon `;`.
 
 ### Comments
+
 Single-line comments start with `--`.
 
 ```zap
@@ -99,6 +108,7 @@ message = "World";
 ### Data Types
 
 Zap supports the following data types:
+
 - **Number**: e.g., `10`, `3.14` (Note: float literals are not supported yet, but `request()` can produce floats)
 - **String**: e.g., `"Hello, World!"`
 - **Boolean**: `true`, `false`
