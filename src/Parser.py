@@ -4,7 +4,7 @@ from AST import (
     BooleanLiteral,
     ForeachLoop,
     Function,
-    Function_Call,
+    FunctionCall,
     Identifier,
     IfStatement,
     NumberLiteral,
@@ -17,14 +17,42 @@ from AST import (
 )
 from Errors.ParseErrors import ExpectedTokenError, ParseError, UnexpectedTokenError
 from Lexer import parsed_tokens
+from Token import Token
 from TokenKind import TokenKind
 
+# unions so everything is wayyy cleaner in return signatures instead of a wall of text in every function definition
+ASTExpression = (
+    BinaryExpression
+    | BooleanExpression
+    | NumberLiteral
+    | BooleanLiteral
+    | StringLiteral
+    | Identifier
+    | RequestStatement
+)
 
-def parse_statement(tokens, index):
+ASTStatement = (
+    VarDeclaration
+    | VarReassignment
+    | OutputStatement
+    | FunctionCall
+    | RequestStatement
+    | WhileLoop
+    | ForeachLoop
+    | IfStatement
+    | Function
+    | str  # str coz we return break as a string and also for more string keywords
+    | None
+)
+
+
+def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]:
     # print(f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
     # for token in tokens:
     #     print(f"TokenKind: {token.kind}, Value: {token.value}")
     token = tokens[index]
+    node: ASTStatement = None  # see coz if we didnt have ASTStatement we would have to do a bunch of type checks
+
     if token.kind == TokenKind.KEYWORD and token.value == "let":
         node, index = parse_let(parsed_tokens, index)
     elif (
@@ -48,8 +76,8 @@ def parse_statement(tokens, index):
         node, index = parse_function(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "define":
         raise UnexpectedTokenError("define")
-    elif token.kind == TokenKind.FUNCTION_CALL:
-        node, index = parse_function_call(parsed_tokens, index)
+    elif token.kind == TokenKind.FunctionCall:
+        node, index = parse_FunctionCall(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "request":
         node, index = parse_request(parsed_tokens, index)
         # print(f"Parsed request statement: {node.value.value}")
@@ -69,11 +97,13 @@ def parse_statement(tokens, index):
     return node, index
 
 
-def parse_expression(tokens, index):
+def parse_expression(
+    tokens: list[Token], index: int
+) -> tuple[ASTExpression | None, int]:
     return parse_comparison(tokens, index)
 
 
-def parse_addition(tokens, index):
+def parse_addition(tokens: list[Token], index: int) -> tuple[ASTExpression | None, int]:
     left, index = parse_multiplication(tokens, index)
 
     while (
@@ -88,7 +118,9 @@ def parse_addition(tokens, index):
     return left, index
 
 
-def parse_multiplication(tokens, index):
+def parse_multiplication(
+    tokens: list[Token], index: int
+) -> tuple[ASTExpression | None, int]:
     left, index = parse_primary(tokens, index)
 
     while (
@@ -103,7 +135,9 @@ def parse_multiplication(tokens, index):
     return left, index
 
 
-def parse_comparison(tokens, index):
+def parse_comparison(
+    tokens: list[Token], index: int
+) -> tuple[ASTExpression | None, int]:
     left, index = parse_addition(tokens, index)
 
     while (
@@ -118,7 +152,7 @@ def parse_comparison(tokens, index):
     return left, index
 
 
-def parse_primary(tokens, index):
+def parse_primary(tokens: list[Token], index: int) -> tuple[ASTExpression | None, int]:
     # print(f"Debug: Token before: {tokens[index-1].value if index > 0 else 'None'}, Current: {tokens[index].value}, Next: {tokens[index+1].value if index + 1 < len(tokens) else 'None'}")
     token = tokens[index]
 
@@ -145,7 +179,7 @@ def parse_primary(tokens, index):
     raise UnexpectedTokenError(token.value)
 
 
-def parse_let(tokens, index):
+def parse_let(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
     # print(tokens[index])
     token = tokens[index]
     if token.kind != TokenKind.KEYWORD or token.value != "let":
@@ -179,7 +213,7 @@ def parse_let(tokens, index):
     return VarDeclaration(var_name, value), index
 
 
-def parse_res(tokens, index):
+def parse_res(tokens: list[Token], index: int) -> tuple[VarReassignment, int]:
     token = tokens[index]
     if token.kind != TokenKind.IDENTIFIER:
         raise ExpectedTokenError("identifier", token.value)
@@ -203,7 +237,7 @@ def parse_res(tokens, index):
     return VarReassignment(var_name, value), index
 
 
-def parse_output(tokens, index):
+def parse_output(tokens: list[Token], index: int) -> tuple[OutputStatement, int]:
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
@@ -232,7 +266,7 @@ def parse_output(tokens, index):
     return OutputStatement(output_data), index
 
 
-def parse_request(tokens, index):
+def parse_request(tokens: list[Token], index: int) -> tuple[RequestStatement, int]:
     index += 1
     # print(f"Tokens: {tokens[index+1:]}")
     token = tokens[index]
@@ -248,7 +282,7 @@ def parse_request(tokens, index):
     return RequestStatement(request_data), index
 
 
-def parse_while(tokens, index):
+def parse_while(tokens: list[Token], index: int) -> tuple[WhileLoop, int]:
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
@@ -275,7 +309,7 @@ def parse_while(tokens, index):
     return WhileLoop(condition, body_nodes), index
 
 
-def parse_foreach(tokens, index):
+def parse_foreach(tokens: list[Token], index: int) -> tuple[ForeachLoop, int]:
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
@@ -309,7 +343,7 @@ def parse_foreach(tokens, index):
     return ForeachLoop(var_name, collection, body_nodes), index
 
 
-def parse_if(tokens, index):
+def parse_if(tokens: list[Token], index: int) -> tuple[IfStatement, int]:
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
@@ -369,7 +403,7 @@ def parse_if(tokens, index):
     return IfStatement(condition, body_nodes, None), index
 
 
-def parse_function(tokens, index):
+def parse_function(tokens: list[Token], index: int) -> tuple[Function, int]:
     # print(f"Parsing function at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
     index += 1
     try:
@@ -412,7 +446,7 @@ def parse_function(tokens, index):
     return Function(func_name, [], body_nodes), index
 
 
-def parse_function_call(tokens, index):
+def parse_FunctionCall(tokens: list[Token], index: int) -> tuple[FunctionCall, int]:
     token = tokens[index]
     function_name = token.value
     index += 1
@@ -428,11 +462,11 @@ def parse_function_call(tokens, index):
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise ExpectedTokenError(";", token.value if token else "end of input")
     index += 1
-    return Function_Call(function_name), index
+    return FunctionCall(function_name), index
 
 
 index = 0
-nodes = []
+nodes: list[ASTStatement] = []
 
 while index < len(parsed_tokens):
     # print(f"Parsed tokens: {parsed_tokens}")

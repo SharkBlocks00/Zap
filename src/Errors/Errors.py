@@ -1,8 +1,10 @@
 class ZapError(Exception):
-    def __init__(self, message, *, line=None, column=None):
+    def __init__(
+        self, message: str, *, line: int | None = None, column: int | None = None
+    ):
         self.message = message
-        self.line = line
-        self.column = column
+        self.line: int | None = line
+        self.column: int | None = column
         super().__init__(self.__str__())
 
     def __str__(self):

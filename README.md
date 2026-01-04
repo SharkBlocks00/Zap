@@ -49,6 +49,8 @@ Zap supports:
 
 At the moment, as Zap is in its early stages, you can only run zap code by putting it into the `source: str = """ <your code here> """`
 and running the interpreter.  This is most definately suboptimal, and will 100% be changed/updated in future releases. 
+Also word of notice, if you are using an older version of Python, you may need to update your version to run Zap as it is currently 
+only supported on Python 3.10 and above.
 
 ---
 

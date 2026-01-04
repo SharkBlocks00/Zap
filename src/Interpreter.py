@@ -4,7 +4,7 @@ from AST import (
     BooleanLiteral,
     ForeachLoop,
     Function,
-    Function_Call,
+    FunctionCall,
     Identifier,
     IfStatement,
     NumberLiteral,
@@ -114,7 +114,7 @@ def interpret_nodes(nodes, global_environment):
                 return "BREAK"
         elif isinstance(node, Function):
             global_environment.define(node.name, node)
-        elif isinstance(node, Function_Call):
+        elif isinstance(node, FunctionCall):
             function = global_environment.get(node.name)
             if not isinstance(function, Function):
                 raise NotCallableError(node.name)

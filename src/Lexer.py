@@ -92,7 +92,7 @@ while i < len(source):
         if source[start:i] == "true" or source[start:i] == "false":
             tokens.append(("BOOLEAN", source[start:i]))
         elif source[start : i + 1].endswith("(") and source[start:i] not in keywords:
-            tokens.append(("FUNCTION_CALL", source[start:i]))
+            tokens.append(("FunctionCall", source[start:i]))
         else:
             # print(f"Identified identifier: {source[start:i+1]}")
             tokens.append(("IDENTIFIER", source[start:i]))
@@ -137,8 +137,8 @@ for kind, value in tokens:
         parsed_tokens.append(Token(TokenKind.NUMBER, int(value)))
     elif kind == "SYMBOL":
         parsed_tokens.append(Token(TokenKind.SYMBOL, value))
-    elif kind == "FUNCTION_CALL":
-        parsed_tokens.append(Token(TokenKind.FUNCTION_CALL, value))
+    elif kind == "FunctionCall":
+        parsed_tokens.append(Token(TokenKind.FunctionCall, value))
     else:
         raise UnexpectedTokenError(value)
 
