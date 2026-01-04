@@ -15,7 +15,7 @@
 - [For Loops](#for-loops)
 - [.zap Files](#filing)
 
---- 
+---
 
 ## Const Modifier
 ### - [ ] Completed
@@ -32,7 +32,7 @@ the mutable value, if True, allow mutability, otherwise throw error.
 "request" as a keyword can be put after a ``let <var_name> = request();`` and any information inside the request parenthesis will be 
 passed into a python ``input()`` statement, and the value assigned to the declared/reassigned variable. Not too sure on implementation methods currently, however, will figure it out.
 
---- 
+---
 
 ## Semi Colon Code Error
 ### - [ ] Completed 
@@ -40,7 +40,7 @@ passed into a python ``input()`` statement, and the value assigned to the declar
 Currently, you can put infinite amounts of code on a singular line. This could lead to developers using Zap (for whatever reason) to 
 be annoying to themselves and other developers, by coding an entire program on line 1. Instead, this should make it so that if there is any code after a semi colon, it will throw an error, as long as it is not inside a loop and so like a '}' for example. Implementation idea: Simply just check for code after a semi colon token, and check if it is a right curly brace, and if not, error.
 
---- 
+---
 
 ## Better Errors
 ### - [X] Completed
@@ -49,7 +49,7 @@ At the moment, all errors in Zap are not at all descriptive, Ie. ``Exception: Un
 line numbers & even just slightly more information will make errors much more developer friendly. Also add in custom error classes
 for example, Zap_Parser_Error, etc as well as terminal colors. This will be not only more developer friendly, but much easier for when debugging Zap itself. Implementation idea: Check atleast the character, what word etc, and add in custom errors in place of all the ``raise Exception(<exception>)``
 
---- 
+---
 
 ## Comments
 ### - [X] Completed
@@ -58,7 +58,7 @@ Comments are basically an essential feature of any good modern programming langu
 simple implement a comment ``TokenKind`` and check in the program if there is a Comment TokenKind, and simple ignore all tokens until EOL.
 (Also meaning must change how parsing/interpreting is done slightly to allow for EOL support) And for full line comments, can just check comment token and skip until EOL token. Implementation will be relatively easy to do for the actual comments, however changing parsing/interpreting to support EOL may prove to be slightly harder to do.
 
----  
+---
 
 ## While Loops
 ### - [X] Completed

@@ -15,6 +15,8 @@ A small, dynamically-typed interpreted programming language written in Python. T
   - [Operators](#operators)
   - [Control Flow](#control-flow)
   - [Functions](#functions)
+  - [Loops](#loops)
+  - [Break Statement](#break-statement)
   - [Input/Output](#inputoutput)
 - [Implementation](#implementation)
 - [Future Ideas](#future-ideas)
@@ -31,9 +33,12 @@ Zap supports:
 - Basic data types: Numbers, Strings, and Booleans
 - Arithmetic and comparison operators
 - Conditional statements (`if`/`elseif`/`else`)
-- Functions (without parameters or return values)
+- Loops (`while` and `foreach`)
+- Functions with call support
 - Console input and output
 - Single-line comments
+- Block-level scoping
+- `break` statement to exit loops early
 
 ---
 
@@ -121,7 +126,7 @@ if (x > 0) {
 
 ### Functions
 
-Functions can be declared and called. Currently, they do not support parameters or return values.
+Functions can be declared using `func name = define() { body }` and called with `name();`. Currently, they do not support parameters or return values.
 
 ```zap
 func my_function = define() {
@@ -129,6 +134,44 @@ func my_function = define() {
 }
 
 my_function();
+```
+
+### Loops
+
+Zap supports two types of loops:
+
+**While Loop**: Repeats while a condition is true.
+
+```zap
+let count = 0;
+while (count < 5) {
+    output("Count: " + count);
+    count = count + 1;
+}
+```
+
+**Foreach Loop**: Iterates over each element in a collection (e.g., characters in a string).
+
+```zap
+let str = "Hello";
+foreach (char : str) {
+    output(char);
+}
+```
+
+### Break Statement
+
+The `break` statement exits a loop early.
+
+```zap
+let count = 0;
+while (count < 10) {
+    if (count == 5) {
+        break;
+    }
+    output(count);
+    count = count + 1;
+}
 ```
 
 ### Input/Output
@@ -159,9 +202,7 @@ output("Hello, " + name);
 
 Check out [roadmap.md](roadmap.md) for more.
 
-- Loops (`while`, `for`)
 - Function parameters and `return` statements
 - More built-in functions
 - Arrays or lists
 - Floating point number literals
-- More detailed error messages
