@@ -1,6 +1,7 @@
 # Zap
 
-A small, dynamically-typed interpreted programming language written in Python. This project is a learning exercise in building a language from scratch.
+A small, dynamically-typed interpreted programming language written in Python. I have taken on this 
+project because I had lots of time, and I wanted something cool & useful to do.
 
 ---
 
