@@ -116,5 +116,5 @@ def interpret_nodes(nodes, global_environment):
 try:
     interpret_nodes(nodes, global_environment)
 except ZapError as error:
-    print(f"Zap runtime error:\n{error}")
+    print(f"Zap {error.__class__.__name__}:\n{error}")
 #print(environment)
