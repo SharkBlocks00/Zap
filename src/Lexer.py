@@ -4,7 +4,7 @@ from Token import Token
 from TokenKind import TokenKind
 from Errors.ParseErrors import UnexpectedTokenError, UnterminatedStringError
 
-source: str = """
+source: str = """ 
 let count = 0;
 let str = "Hello World!";
 while (count <= 5) {
@@ -23,7 +23,6 @@ while (count > 0) {
 foreach (char : str) {
     output(char);
 }
-
 """
 
 i: int = 0
@@ -43,8 +42,16 @@ keywords: list[str] = [
     "foreach",
 ]
 
+line_count: int = -1
+
 while i < len(source):
     char = source[i]
+
+    if char == "\n":
+        line_count += 1
+        i += 1
+        continue
+
 
     if char.isspace():
         i += 1
@@ -64,7 +71,7 @@ while i < len(source):
             i += 1
 
         if i >= len(source):
-            raise UnterminatedStringError()
+            raise UnterminatedStringError(line=line_count+1)
 
         tokens.append(("STRING", source[start:i]))
         i += 1
@@ -91,7 +98,7 @@ while i < len(source):
         tokens.append(("NUMBER", source[start:i]))
         continue
 
-    if char in ["=", ";", "(", ")", "{", "}", "+", "-", "*", "/", "==", "!=", "<", ">", "<=", ">=", ":"]:
+    if char in ["=", ";", "(", ")", "{", "}", "+", "-", "*", "/", "!", "<", ">", ":"]:
         if char in ["=", "!", "<", ">"] and i + 1 < len(source) and source[i + 1] == "=":
             tokens.append(("SYMBOL", char + "="))
             i += 2
@@ -100,7 +107,7 @@ while i < len(source):
         i += 1
         continue
 
-    raise UnexpectedTokenError(char)
+    raise UnexpectedTokenError(char, line=line_count+1)
 
 #print(tokens)
 
@@ -124,5 +131,6 @@ for kind, value in tokens:
     else:
         raise UnexpectedTokenError(value)
 
-for token in parsed_tokens:
-    print(f"TokenKind: {token.kind}, Value: {token.value}")
+# for token in parsed_tokens:
+#     print(f"TokenKind: {token.kind}, Value: {token.value}")
+#print(f"Line count: {line_count}")
