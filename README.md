@@ -3,6 +3,12 @@
 A small, dynamically-typed interpreted programming language written in Python. I have taken on this 
 project because I had lots of time, and I wanted something cool & useful to do.
 
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/github/license/sharkblocks00/zap)
+![Stars](https://img.shields.io/github/stars/sharkblocks00/zap)
+![Issues](https://img.shields.io/github/issues/sharkblocks00/zap)
+![Last Commit](https://img.shields.io/github/last-commit/sharkblocks00/zap)
+
 ---
 
 ## Table of contents
