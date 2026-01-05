@@ -7,6 +7,9 @@ from TokenKind import TokenKind
 source: str = """
 let count = 0;
 let str = "Hello World!";
+if (True) {
+    output("Hello World!");
+}
 while (count <= 5) {
     output("Count is:");
     output(count);
@@ -28,6 +31,9 @@ func greet = define() {
     output("Hello " + name);
 }
 greet();
+let bob = False;
+let alice = True;
+output(bob || alice);
 """
 
 i: int = 0
@@ -90,7 +96,7 @@ while i < len(source):
         ):
             i += 1
 
-        if source[start:i] == "true" or source[start:i] == "false":
+        if source[start:i] == "True" or source[start:i] == "False":
             tokens.append(("BOOLEAN", source[start:i]))
         elif source[start : i + 1].endswith("(") and source[start:i] not in keywords:
             tokens.append(("FunctionCall", source[start:i]))
@@ -106,7 +112,24 @@ while i < len(source):
         tokens.append(("NUMBER", source[start:i]))
         continue
 
-    if char in ["=", ";", "(", ")", "{", "}", "+", "-", "*", "/", "!", "<", ">", ":"]:
+    if char in [
+        "=",
+        ";",
+        "(",
+        ")",
+        "{",
+        "}",
+        "+",
+        "-",
+        "*",
+        "/",
+        "!",
+        "<",
+        ">",
+        ":",
+        "&",
+        "|",
+    ]:
         if (
             char in ["=", "!", "<", ">"]
             and i + 1 < len(source)
@@ -114,6 +137,14 @@ while i < len(source):
         ):
             tokens.append(("SYMBOL", char + "="))
             i += 2
+            continue
+        elif char in ["&", "|"]:
+            if source[i + 1] in ["&", "|"]:
+                tokens.append(("SYMBOL", char + char))
+                i += 2
+                continue
+            tokens.append(("SYMBOL", char))
+            i += 1
             continue
         tokens.append(("SYMBOL", char))
         i += 1

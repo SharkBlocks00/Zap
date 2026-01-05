@@ -37,7 +37,7 @@ def eval_expression(expr, environment):
     if isinstance(expr, StringLiteral):
         return expr.value
     if isinstance(expr, BooleanLiteral):
-        return expr.value == "True"
+        return expr.value
     if isinstance(expr, Identifier):
         return environment.get(expr.name)
     if isinstance(expr, BinaryExpression):
@@ -68,6 +68,10 @@ def eval_expression(expr, environment):
             return left >= right
         elif expr.operator == "!=":
             return left != right
+        elif expr.operator == "&&":
+            return left and right
+        elif expr.operator == "||":
+            return left or right
 
     if isinstance(expr, RequestStatement):
         prompt = eval_expression(expr.value, environment)
