@@ -31,7 +31,9 @@ ASTStatement: TypeAlias = Statement | None | str
 
 
 def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]:
-    # print(f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
+    # print(
+    #     f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}"
+    # )
     # for token in tokens:
     #     print(f"TokenKind: {token.kind}, Value: {token.value}")
     token = tokens[index]
@@ -123,12 +125,12 @@ def parse_multiplication(
 
 def parse_comparison(tokens: list[Token], index: int) -> tuple[Expression | None, int]:
     left, index = parse_addition(tokens, index)
-
     while (
         index < len(tokens)
         and tokens[index].kind == TokenKind.SYMBOL
-        and tokens[index].value in ["==", "!=", "<", ">", "<=", ">="]
+        and tokens[index].value in ["==", "!=", "<", ">", "<=", ">=", "&&", "||"]
     ):
+        # print(f"Token: {tokens[index].value}")
         operator = tokens[index].value
         right, index = parse_addition(tokens, index + 1)
         left = BooleanExpression(left, operator, right)
