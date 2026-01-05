@@ -17,8 +17,9 @@ from AST import (
 )
 from classes.Environment import Environment
 from Errors.Errors import ZapError
-from Errors.RuntimeErrors import NotCallableError
+from Errors.RuntimeErrors import CannotAssignToKeyword, NotCallableError
 from Errors.TypeErrors import InvalidBinaryOperation
+from Lexer import keywords
 from Parser import nodes
 
 
@@ -95,6 +96,8 @@ def interpret_nodes(nodes, global_environment):
         if node == "break":
             return "BREAK"
         if isinstance(node, VarDeclaration):
+            if node.name in keywords:
+                raise CannotAssignToKeyword(node.name)
             global_environment.define(
                 node.name, eval_expression(node.value, global_environment)
             )
