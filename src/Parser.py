@@ -1,7 +1,10 @@
+from typing import TypeAlias
+
 from AST import (
     BinaryExpression,
     BooleanExpression,
     BooleanLiteral,
+    Expression,
     ForeachLoop,
     Function,
     FunctionCall,
@@ -10,6 +13,7 @@ from AST import (
     NumberLiteral,
     OutputStatement,
     RequestStatement,
+    Statement,
     StringLiteral,
     VarDeclaration,
     VarReassignment,
@@ -21,29 +25,9 @@ from Token import Token
 from TokenKind import TokenKind
 
 # unions so everything is wayyy cleaner in return signatures instead of a wall of text in every function definition
-ASTExpression = (
-    BinaryExpression
-    | BooleanExpression
-    | NumberLiteral
-    | BooleanLiteral
-    | StringLiteral
-    | Identifier
-    | RequestStatement
-)
+ASTExpression: TypeAlias = Expression
 
-ASTStatement = (
-    VarDeclaration
-    | VarReassignment
-    | OutputStatement
-    | FunctionCall
-    | RequestStatement
-    | WhileLoop
-    | ForeachLoop
-    | IfStatement
-    | Function
-    | str  # str coz we return break as a string and also for more string keywords
-    | None
-)
+ASTStatement: TypeAlias = Statement | None | str
 
 
 def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]:
@@ -97,13 +81,11 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
     return node, index
 
 
-def parse_expression(
-    tokens: list[Token], index: int
-) -> tuple[ASTExpression | None, int]:
+def parse_expression(tokens: list[Token], index: int) -> tuple[Expression | None, int]:
     return parse_comparison(tokens, index)
 
 
-def parse_addition(tokens: list[Token], index: int) -> tuple[ASTExpression | None, int]:
+def parse_addition(tokens: list[Token], index: int) -> tuple[Expression | None, int]:
     left, index = parse_multiplication(tokens, index)
 
     while (
@@ -113,6 +95,8 @@ def parse_addition(tokens: list[Token], index: int) -> tuple[ASTExpression | Non
     ):
         operator = tokens[index].value
         right, index = parse_multiplication(tokens, index + 1)
+        assert left is not None  # doing this to make the type checker happy
+        assert right is not None
         left = BinaryExpression(left, operator, right)
 
     return left, index
@@ -120,7 +104,7 @@ def parse_addition(tokens: list[Token], index: int) -> tuple[ASTExpression | Non
 
 def parse_multiplication(
     tokens: list[Token], index: int
-) -> tuple[ASTExpression | None, int]:
+) -> tuple[Expression | None, int]:
     left, index = parse_primary(tokens, index)
 
     while (
@@ -130,14 +114,14 @@ def parse_multiplication(
     ):
         operator = tokens[index].value
         right, index = parse_primary(tokens, index + 1)
+        assert left is not None
+        assert right is not None
         left = BinaryExpression(left, operator, right)
 
     return left, index
 
 
-def parse_comparison(
-    tokens: list[Token], index: int
-) -> tuple[ASTExpression | None, int]:
+def parse_comparison(tokens: list[Token], index: int) -> tuple[Expression | None, int]:
     left, index = parse_addition(tokens, index)
 
     while (
@@ -152,14 +136,14 @@ def parse_comparison(
     return left, index
 
 
-def parse_primary(tokens: list[Token], index: int) -> tuple[ASTExpression | None, int]:
+def parse_primary(tokens: list[Token], index: int) -> tuple[Expression | None, int]:
     # print(f"Debug: Token before: {tokens[index-1].value if index > 0 else 'None'}, Current: {tokens[index].value}, Next: {tokens[index+1].value if index + 1 < len(tokens) else 'None'}")
     token = tokens[index]
 
     if token.kind == TokenKind.NUMBER:
-        return NumberLiteral(token.value), index + 1
+        return NumberLiteral(int(token.value)), index + 1
     if token.kind == TokenKind.BOOLEAN:
-        return BooleanLiteral(token.value), index + 1
+        return BooleanLiteral(bool(token.value)), index + 1
     if token.kind == TokenKind.STRING:
         return StringLiteral(token.value), index + 1
     if token.kind == TokenKind.IDENTIFIER:
@@ -209,7 +193,7 @@ def parse_let(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
         raise ExpectedTokenError(";", token.value)
 
     index += 1
-
+    assert value is not None
     return VarDeclaration(var_name, value), index
 
 
@@ -233,7 +217,7 @@ def parse_res(tokens: list[Token], index: int) -> tuple[VarReassignment, int]:
         raise ExpectedTokenError(";", token.value)
 
     index += 1
-
+    assert value is not None
     return VarReassignment(var_name, value), index
 
 
@@ -262,7 +246,7 @@ def parse_output(tokens: list[Token], index: int) -> tuple[OutputStatement, int]
         raise ExpectedTokenError(";", token.value if token else "end of input")
 
     index += 1
-
+    assert output_data is not None
     return OutputStatement(output_data), index
 
 
@@ -279,6 +263,7 @@ def parse_request(tokens: list[Token], index: int) -> tuple[RequestStatement, in
     if token.kind != TokenKind.SYMBOL or token.value != ")":
         raise ExpectedTokenError(")", token.value if token else "end of input")
     index += 1
+    assert request_data is not None
     return RequestStatement(request_data), index
 
 
@@ -306,6 +291,7 @@ def parse_while(tokens: list[Token], index: int) -> tuple[WhileLoop, int]:
         body_nodes.append(stmt)
         token = tokens[index]
     index += 1
+    assert condition is not None
     return WhileLoop(condition, body_nodes), index
 
 
@@ -340,6 +326,7 @@ def parse_foreach(tokens: list[Token], index: int) -> tuple[ForeachLoop, int]:
         body_nodes.append(stmt)
         token = tokens[index]
     index += 1
+    assert collection is not None
     return ForeachLoop(var_name, collection, body_nodes), index
 
 
@@ -378,6 +365,7 @@ def parse_if(tokens: list[Token], index: int) -> tuple[IfStatement, int]:
         and tokens[index].value == "elseif"
     ):
         else_branch, index = parse_if(tokens, index)
+        assert condition is not None
         return IfStatement(condition, body_nodes, else_branch), index
 
     elif (
@@ -399,7 +387,9 @@ def parse_if(tokens: list[Token], index: int) -> tuple[IfStatement, int]:
             token = tokens[index]
         index += 1
         else_branch = else_body
+        assert condition is not None
         return IfStatement(condition, body_nodes, else_branch), index
+    assert condition is not None
     return IfStatement(condition, body_nodes, None), index
 
 
@@ -409,7 +399,7 @@ def parse_function(tokens: list[Token], index: int) -> tuple[Function, int]:
     try:
         token = tokens[index]
     except IndexError:
-        raise ParseError("Unexpected end of input while parsing function")
+        raise ParseError("Unexpected end of input while parsing function") from None
     if token.kind != TokenKind.IDENTIFIER:
         raise ExpectedTokenError("identifier", token.value if token else "end of input")
     func_name = token.value

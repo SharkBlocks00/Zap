@@ -30,7 +30,7 @@ class OutputStatement(Statement):
         self.value = value
 
 
-class RequestStatement(Statement):
+class RequestStatement(Expression, Statement):
     def __init__(self, value: Expression):
         self.value = value
 
@@ -63,13 +63,15 @@ class BinaryExpression(Expression):
 
 
 class BooleanExpression(Expression):
-    def __init__(self, left: Expression, operator: str, right: Expression):
+    def __init__(
+        self, left: Expression | None, operator: str, right: Expression | None
+    ):
         self.left = left
         self.operator = operator
         self.right = right
 
 
-class FunctionCall(Expression):
+class FunctionCall(Expression, Statement):
     def __init__(self, name: str, arguments: list[Expression] | None = None):
         self.name = name
         self.arguments = arguments
@@ -80,7 +82,7 @@ class IfStatement(Statement):
         self,
         condition: Expression,
         body: list[Statement],
-        else_body: list[Statement] | None = None,
+        else_body: list[Statement] | IfStatement | None = None,
     ):
         self.condition = condition
         self.body = body

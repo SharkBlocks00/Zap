@@ -37,7 +37,7 @@ def eval_expression(expr, environment):
     if isinstance(expr, StringLiteral):
         return expr.value
     if isinstance(expr, BooleanLiteral):
-        return expr.value.lower() == "true"
+        return expr.value == "True"
     if isinstance(expr, Identifier):
         return environment.get(expr.name)
     if isinstance(expr, BinaryExpression):
@@ -70,7 +70,8 @@ def eval_expression(expr, environment):
             return left != right
 
     if isinstance(expr, RequestStatement):
-        return convert_input(input(expr.value.value))
+        prompt = eval_expression(expr.value, environment)
+        return convert_input(input(str(prompt)))
     if isinstance(expr, str):
         return expr
     if isinstance(expr, int) or isinstance(expr, float):

@@ -24,7 +24,8 @@ foreach (char : str) {
     output(char);
 }
 func greet = define() {
-    output("Hello");
+    let name = request("What is your name? ");
+    output("Hello " + name);
 }
 greet();
 """
@@ -134,7 +135,7 @@ for kind, value in tokens:
     elif kind == "IDENTIFIER":
         parsed_tokens.append(Token(TokenKind.IDENTIFIER, value))
     elif kind == "NUMBER":
-        parsed_tokens.append(Token(TokenKind.NUMBER, int(value)))
+        parsed_tokens.append(Token(TokenKind.NUMBER, value))
     elif kind == "SYMBOL":
         parsed_tokens.append(Token(TokenKind.SYMBOL, value))
     elif kind == "FunctionCall":
