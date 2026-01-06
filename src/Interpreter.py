@@ -20,7 +20,10 @@ from Errors.Errors import ZapError
 from Errors.RuntimeErrors import CannotAssignToKeyword, NotCallableError
 from Errors.TypeErrors import InvalidBinaryOperation
 from Lexer import keywords
+from Logger import get_logger
 from Parser import nodes
+
+logger = get_logger(__name__)
 
 
 def convert_input(value):
@@ -92,7 +95,7 @@ global_environment = Environment()
 
 def interpret_nodes(nodes, global_environment):
     for node in nodes:
-        # print(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
+        # logger.debug(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
         if node == "break":
             return "BREAK"
         if isinstance(node, VarDeclaration):
@@ -148,4 +151,4 @@ try:
     interpret_nodes(nodes, global_environment)
 except ZapError as error:
     print(f"Zap {error.__class__.__name__}:\n{error}")
-# print(environment)
+# logger.debug(global_environment)

@@ -64,7 +64,10 @@ class BinaryExpression(Expression):
 
 class BooleanExpression(Expression):
     def __init__(
-        self, left: Expression | None, operator: str, right: Expression | None
+        self,
+        left: Expression | None,
+        operator: str,
+        right: Expression | None,
     ):
         self.left = left
         self.operator = operator
