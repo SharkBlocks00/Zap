@@ -21,6 +21,13 @@ class InvalidAssignmentError(RuntimeError):
         )
 
 
+class CannotAssignToKeyword(RuntimeError):
+    def __init__(
+        self, name: str, *, line: int | None = None, column: int | None = None
+    ):
+        super().__init__(f"Cannot assign a value to keyword '{name}'")
+
+
 class NotCallableError(RuntimeError):
     def __init__(
         self, name: str, *, line: int | None = None, column: int | None = None

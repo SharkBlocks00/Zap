@@ -21,8 +21,11 @@ from AST import (
 )
 from Errors.ParseErrors import ExpectedTokenError, ParseError, UnexpectedTokenError
 from Lexer import parsed_tokens
+from Logger import get_logger
 from Token import Token
 from TokenKind import TokenKind
+
+logger = get_logger(__name__)
 
 # unions so everything is wayyy cleaner in return signatures instead of a wall of text in every function definition
 ASTExpression: TypeAlias = Expression
@@ -31,11 +34,11 @@ ASTStatement: TypeAlias = Statement | None | str
 
 
 def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]:
-    # print(
+    # logger.debug(
     #     f"Parsing statement at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}"
     # )
     # for token in tokens:
-    #     print(f"TokenKind: {token.kind}, Value: {token.value}")
+    #     logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
     token = tokens[index]
     node: ASTStatement = None  # see coz if we didnt have ASTStatement we would have to do a bunch of type checks
 
@@ -48,7 +51,7 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
     ):
         node, index = parse_function(parsed_tokens, index)
     elif token.kind == TokenKind.IDENTIFIER:
-        # print(f"Parsed identifier token: {parsed_tokens[index].value}")
+        # logger.debug(f"Parsed identifier token: {parsed_tokens[index].value}")
         node, index = parse_res(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "output":
         node, index = parse_output(parsed_tokens, index)
@@ -66,7 +69,7 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
         node, index = parse_FunctionCall(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "request":
         node, index = parse_request(parsed_tokens, index)
-        # print(f"Parsed request statement: {node.value.value}")
+        # logger.debug(f"Parsed request statement: {node.value.value}")
     elif token.kind == TokenKind.KEYWORD and token.value == "while":
         node, index = parse_while(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "break":
@@ -130,7 +133,7 @@ def parse_comparison(tokens: list[Token], index: int) -> tuple[Expression | None
         and tokens[index].kind == TokenKind.SYMBOL
         and tokens[index].value in ["==", "!=", "<", ">", "<=", ">=", "&&", "||"]
     ):
-        # print(f"Token: {tokens[index].value}")
+        # logger.debug(f"Token: {tokens[index].value}")
         operator = tokens[index].value
         right, index = parse_addition(tokens, index + 1)
         left = BooleanExpression(left, operator, right)
@@ -139,7 +142,7 @@ def parse_comparison(tokens: list[Token], index: int) -> tuple[Expression | None
 
 
 def parse_primary(tokens: list[Token], index: int) -> tuple[Expression | None, int]:
-    # print(f"Debug: Token before: {tokens[index-1].value if index > 0 else 'None'}, Current: {tokens[index].value}, Next: {tokens[index+1].value if index + 1 < len(tokens) else 'None'}")
+    # logger.debug(f"Token before: {tokens[index-1].value if index > 0 else 'None'}, Current: {tokens[index].value}, Next: {tokens[index+1].value if index + 1 < len(tokens) else 'None'}")
     token = tokens[index]
 
     if token.kind == TokenKind.NUMBER:
@@ -166,7 +169,7 @@ def parse_primary(tokens: list[Token], index: int) -> tuple[Expression | None, i
 
 
 def parse_let(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
-    # print(tokens[index])
+    # logger.debug(tokens[index])
     token = tokens[index]
     if token.kind != TokenKind.KEYWORD or token.value != "let":
         raise ExpectedTokenError("let", token.value if token else "end of input")
@@ -177,20 +180,20 @@ def parse_let(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
         raise ExpectedTokenError("identifier", token.value)
 
     var_name = token.value
-    # print(f"Variable {var_name}")
+    # logger.debug(f"Variable {var_name}")
     index += 1
     token = tokens[index]
-    # print(f"Token: {token.kind}, Value: {token.value}")
+    # logger.debug(f"Token: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != "=":
         raise ExpectedTokenError("=", token.value)
 
     index += 1
     value, index = parse_expression(tokens, index)
 
-    # print(f"Parsed value for variable '{var_name}': {value}")
-    # print(f"Token: {tokens[index].kind}, Value: {tokens[index].value}")
+    # logger.debug(f"Parsed value for variable '{var_name}': {value}")
+    # logger.debug(f"Token: {tokens[index].kind}, Value: {tokens[index].value}")
     token = tokens[index]
-    # print(f"Token at end of let: {token.kind}, Value: {token.value}")
+    # logger.debug(f"Token at end of let: {token.kind}, Value: {token.value}")
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise ExpectedTokenError(";", token.value)
 
@@ -231,11 +234,11 @@ def parse_output(tokens: list[Token], index: int) -> tuple[OutputStatement, int]
 
     index += 1
     token = tokens[index]
-    # print(f"Token at start of output expression: {token.value}, TokenKind: {token.kind}")
+    # logger.debug(f"Token at start of output expression: {token.value}, TokenKind: {token.kind}")
     output_data, index = parse_expression(tokens, index)
-    # print(f"Output data parsed: {output_data}")
+    # logger.debug(f"Output data parsed: {output_data}")
     token = tokens[index]
-    # print(f"Token: {token.value}, TokenKind: {token.kind}")
+    # logger.debug(f"Token: {token.value}, TokenKind: {token.kind}")
 
     if token.kind != TokenKind.SYMBOL or token.value != ")":
         raise ExpectedTokenError(")", token.value if token else "end of input")
@@ -243,7 +246,7 @@ def parse_output(tokens: list[Token], index: int) -> tuple[OutputStatement, int]
     index += 1
     token = tokens[index]
 
-    # print(f"Token: {tokens[index + 1]}")
+    # logger.debug(f"Token: {tokens[index + 1]}")
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise ExpectedTokenError(";", token.value if token else "end of input")
 
@@ -254,7 +257,7 @@ def parse_output(tokens: list[Token], index: int) -> tuple[OutputStatement, int]
 
 def parse_request(tokens: list[Token], index: int) -> tuple[RequestStatement, int]:
     index += 1
-    # print(f"Tokens: {tokens[index+1:]}")
+    # logger.debug(f"Tokens: {tokens[index+1:]}")
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != "(":
         raise ExpectedTokenError("(", token.value if token else "end of input")
@@ -396,7 +399,7 @@ def parse_if(tokens: list[Token], index: int) -> tuple[IfStatement, int]:
 
 
 def parse_function(tokens: list[Token], index: int) -> tuple[Function, int]:
-    # print(f"Parsing function at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
+    # logger.debug(f"Parsing function at index {index}: TokenKind={tokens[index].kind}, Value={tokens[index].value}")
     index += 1
     try:
         token = tokens[index]
@@ -461,7 +464,7 @@ index = 0
 nodes: list[ASTStatement] = []
 
 while index < len(parsed_tokens):
-    # print(f"Parsed tokens: {parsed_tokens}")
-    # print(parsed_tokens[index].kind, parsed_tokens[index].value)
+    # logger.debug(f"Parsed tokens: {parsed_tokens}")
+    # logger.debug(parsed_tokens[index].kind, parsed_tokens[index].value)
     node, index = parse_statement(parsed_tokens, index)
     nodes.append(node)

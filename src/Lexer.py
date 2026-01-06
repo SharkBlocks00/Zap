@@ -1,8 +1,11 @@
 from typing import Any
 
 from Errors.ParseErrors import UnexpectedTokenError, UnterminatedStringError
+from Logger import get_logger
 from Token import Token
 from TokenKind import TokenKind
+
+logger = get_logger(__name__)
 
 source: str = """
 let count = 0;
@@ -101,7 +104,7 @@ while i < len(source):
         elif source[start : i + 1].endswith("(") and source[start:i] not in keywords:
             tokens.append(("FunctionCall", source[start:i]))
         else:
-            # print(f"Identified identifier: {source[start:i+1]}")
+            # logger.debug(f"Identified identifier: {source[start:i]}")
             tokens.append(("IDENTIFIER", source[start:i]))
         continue
 
@@ -152,7 +155,7 @@ while i < len(source):
 
     raise UnexpectedTokenError(char, line=line_count + 1)
 
-# print(tokens)
+# logger.debug(tokens)
 
 parsed_tokens: list[Any] = []
 
@@ -174,6 +177,6 @@ for kind, value in tokens:
     else:
         raise UnexpectedTokenError(value)
 
-# for token in parsed_tokens:
-#     print(f"TokenKind: {token.kind}, Value: {token.value}")
-# print(f"Line count: {line_count}")
+for token in parsed_tokens:
+    logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
+# logger.debug(f"Line count: {line_count}")
