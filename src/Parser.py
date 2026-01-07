@@ -50,6 +50,8 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
         and tokens[index + 1].value == "("
     ):
         node, index = parse_function(parsed_tokens, index)
+    elif token.kind == TokenKind.KEYWORD and token.value == "const":
+        node, index = parse_const(parsed_tokens, index)
     elif token.kind == TokenKind.IDENTIFIER:
         # logger.debug(f"Parsed identifier token: {parsed_tokens[index].value}")
         node, index = parse_res(parsed_tokens, index)
@@ -200,6 +202,27 @@ def parse_let(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
     index += 1
     assert value is not None
     return VarDeclaration(var_name, value), index
+
+
+def parse_const(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.IDENTIFIER:
+        raise ExpectedTokenError("identifier", token.value)
+
+    var_name = token.value
+    index += 1
+    token = tokens[index]
+
+    if token.kind != TokenKind.SYMBOL or token.value != "=":
+        raise ExpectedTokenError("=", token.value)
+
+    index += 1
+    value, index = parse_expression(tokens, index)
+    assert value is not None
+    #logger.debug(f"Parsed value for constant '{var_name}': {value}")
+    index += 1
+    return VarDeclaration(var_name, value, mutable=False), index
 
 
 def parse_res(tokens: list[Token], index: int) -> tuple[VarReassignment, int]:

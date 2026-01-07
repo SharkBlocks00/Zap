@@ -14,9 +14,10 @@ class Expression(ASTNode):
 
 
 class VarDeclaration(Statement):
-    def __init__(self, name: str, value: Expression):
+    def __init__(self, name: str, value: Expression, mutable: bool = True):
         self.name = name
         self.value = value
+        self.mutable = mutable
 
 
 class VarReassignment(Statement):

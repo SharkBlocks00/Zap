@@ -18,7 +18,7 @@
 ---
 
 ## Const Modifier
-### - [ ] Completed
+### - [X] Completed
 
 "const" will be a keyword you can place before/after a let statement, and will change the mutability allowance of that variable.
 Suggested way to add: Implement a self.mutable in VarDecleration, and when looking up object in environment in interpreter, check

@@ -43,7 +43,10 @@ def eval_expression(expr, environment):
     if isinstance(expr, BooleanLiteral):
         return expr.value
     if isinstance(expr, Identifier):
-        return environment.get(expr.name)
+        value = environment.get(expr.name)
+        if isinstance(value, list) and len(value) == 2:
+            return value[0]
+        return value
     if isinstance(expr, BinaryExpression):
         left = eval_expression(expr.left, environment)
         right = eval_expression(expr.right, environment)
@@ -101,14 +104,16 @@ def interpret_nodes(nodes, global_environment):
         if isinstance(node, VarDeclaration):
             if node.name in keywords:
                 raise CannotAssignToKeyword(node.name)
+
             global_environment.define(
-                node.name, eval_expression(node.value, global_environment)
+                node.name, eval_expression(node.value, global_environment), node.mutable
             )
         elif isinstance(node, VarReassignment):
             global_environment.assign(
                 node.name, eval_expression(node.value, global_environment)
             )
         elif isinstance(node, OutputStatement):
+            #logger.debug(f"OutputStatement: {node.value}")
             print(eval_expression(node.value, global_environment))
         elif isinstance(node, IfStatement):
             result = None

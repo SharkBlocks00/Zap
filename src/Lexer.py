@@ -8,35 +8,8 @@ from TokenKind import TokenKind
 logger = get_logger(__name__)
 
 source: str = """
-let count = 0;
-let str = "Hello World!";
-if (True) {
-    output("Hello World!");
-}
-while (count <= 5) {
-    output("Count is:");
-    output(count);
-    count = count + 1;
-}
-while (count > 0) {
-    count = count - 1;
-    if (count == 3) {
-        output("Breaking");
-        break;
-   }
-    output("Count down:");
-}
-foreach (char : str) {
-    output(char);
-}
-func greet = define() {
-    let name = request("What is your name? ");
-    output("Hello " + name);
-}
-greet();
-let bob = False;
-let alice = True;
-output(bob || alice);
+const name = "Bob";
+output(name);
 """
 
 i: int = 0
@@ -54,6 +27,7 @@ keywords: list[str] = [
     "while",
     "break",
     "foreach",
+    "const",
 ]
 
 line_count: int = -1
@@ -93,9 +67,9 @@ while i < len(source):
         start = i
         while (
             i < len(source)
-            and source[i].isalnum()
+            and (source[i].isalnum()
             or source[i] == "_"
-            or source[i] == "-"
+            or source[i] == "-")
         ):
             i += 1
 
@@ -177,6 +151,6 @@ for kind, value in tokens:
     else:
         raise UnexpectedTokenError(value)
 
-for token in parsed_tokens:
-    logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
+# for token in parsed_tokens:
+#     logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
 # logger.debug(f"Line count: {line_count}")
