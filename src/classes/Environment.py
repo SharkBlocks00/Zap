@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from Errors.RuntimeErrors import UndefinedVariableError, CannotAssignToConstant
+from Errors.RuntimeErrors import CannotAssignToConstant, UndefinedVariableError
 
 
 class Environment:
     def __init__(self, parent: Environment | None = None):
-        self.variables: dict[str, list[object, bool]] = {}
+        self.variables: dict[str, list[object]] = {}
         self.parent = parent
 
     def define(self, name: str, value: object, mutable: bool = True) -> None:

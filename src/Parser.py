@@ -4,6 +4,7 @@ from AST import (
     BinaryExpression,
     BooleanExpression,
     BooleanLiteral,
+    BreakStatement,
     Expression,
     ForeachLoop,
     Function,
@@ -75,12 +76,7 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
     elif token.kind == TokenKind.KEYWORD and token.value == "while":
         node, index = parse_while(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "break":
-        index += 1
-        token = tokens[index]
-        if token.kind != TokenKind.SYMBOL or token.value != ";":
-            raise ExpectedTokenError(";", token.value if token else "end of input")
-        index += 1
-        node = "break"
+        node, index = parse_Break(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "foreach":
         node, index = parse_foreach(parsed_tokens, index)
     else:
@@ -220,7 +216,7 @@ def parse_const(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
     index += 1
     value, index = parse_expression(tokens, index)
     assert value is not None
-    #logger.debug(f"Parsed value for constant '{var_name}': {value}")
+    # logger.debug(f"Parsed value for constant '{var_name}': {value}")
     index += 1
     return VarDeclaration(var_name, value, mutable=False), index
 
@@ -481,6 +477,15 @@ def parse_FunctionCall(tokens: list[Token], index: int) -> tuple[FunctionCall, i
         raise ExpectedTokenError(";", token.value if token else "end of input")
     index += 1
     return FunctionCall(function_name), index
+
+
+def parse_Break(tokens: list[Token], index: int) -> tuple[BreakStatement, int]:
+    index += 1
+    token = tokens[index]
+    if token.kind != TokenKind.SYMBOL or token.value != ";":
+        raise ExpectedTokenError(";", token.value if token else "end of input")
+    index += 1
+    return BreakStatement(), index
 
 
 index = 0

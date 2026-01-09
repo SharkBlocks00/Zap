@@ -2,6 +2,7 @@ from AST import (
     BinaryExpression,
     BooleanExpression,
     BooleanLiteral,
+    BreakStatement,
     ForeachLoop,
     Function,
     FunctionCall,
@@ -98,8 +99,14 @@ global_environment = Environment()
 
 def interpret_nodes(nodes, global_environment):
     for node in nodes:
-        # logger.debug(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
-        if node == "break":
+        logger.debug(
+            node.value
+            if hasattr(node, "value")
+            else node.name
+            if hasattr(node, "name")
+            else type(node)
+        )
+        if isinstance(node, BreakStatement):
             return "BREAK"
         if isinstance(node, VarDeclaration):
             if node.name in keywords:
@@ -113,7 +120,7 @@ def interpret_nodes(nodes, global_environment):
                 node.name, eval_expression(node.value, global_environment)
             )
         elif isinstance(node, OutputStatement):
-            #logger.debug(f"OutputStatement: {node.value}")
+            # logger.debug(f"OutputStatement: {node.value}")
             print(eval_expression(node.value, global_environment))
         elif isinstance(node, IfStatement):
             result = None

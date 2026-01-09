@@ -121,3 +121,8 @@ class Function(Statement):
         self.name = name
         self.parameters = parameters
         self.body = body
+
+
+class BreakStatement(Statement):
+    def __init__(self):
+        pass

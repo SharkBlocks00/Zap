@@ -8,8 +8,10 @@ from TokenKind import TokenKind
 logger = get_logger(__name__)
 
 source: str = """
-const name = "Bob";
-output(name);
+while (True) {
+    output("Hello, World!");
+    break;
+}
 """
 
 i: int = 0
@@ -65,11 +67,8 @@ while i < len(source):
 
     if char.isalpha():
         start = i
-        while (
-            i < len(source)
-            and (source[i].isalnum()
-            or source[i] == "_"
-            or source[i] == "-")
+        while i < len(source) and (
+            source[i].isalnum() or source[i] == "_" or source[i] == "-"
         ):
             i += 1
 
