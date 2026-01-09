@@ -75,7 +75,7 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
         # logger.debug(f"Parsed request statement: {node.value.value}")
     elif token.kind == TokenKind.KEYWORD and token.value == "while":
         node, index = parse_while(parsed_tokens, index)
-    elif token.kind == TokenKind.KEYWORD and token.value == "break":
+    elif token.kind == TokenKind.BREAK:
         node, index = parse_Break(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "foreach":
         node, index = parse_foreach(parsed_tokens, index)
@@ -481,6 +481,8 @@ def parse_FunctionCall(tokens: list[Token], index: int) -> tuple[FunctionCall, i
 
 def parse_Break(tokens: list[Token], index: int) -> tuple[BreakStatement, int]:
     index += 1
+    if index >= len(tokens):
+        raise ParseError("Unexpected end of input while parsing break") from None
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise ExpectedTokenError(";", token.value if token else "end of input")

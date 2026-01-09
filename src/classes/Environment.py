@@ -5,19 +5,20 @@ from Errors.RuntimeErrors import CannotAssignToConstant, UndefinedVariableError
 
 class Environment:
     def __init__(self, parent: Environment | None = None):
-        self.variables: dict[str, list[object]] = {}
+        self.variables: dict[str, tuple[object, bool]] = {}
         self.parent = parent
 
     def define(self, name: str, value: object, mutable: bool = True) -> None:
         if name in self.variables:
             raise CannotAssignToConstant(name)
-        self.variables[name] = [value, mutable]
+        self.variables[name] = (value, mutable)
 
     def assign(self, name: str, value: object) -> None:
         if name in self.variables:
             if not self.variables[name][1]:
                 raise CannotAssignToConstant(name)
-            self.variables[name][0] = value
+            _, mutable = self.variables[name]
+            self.variables[name] = (value, mutable)
         elif self.parent is not None:
             self.parent.assign(name, value)
         else:

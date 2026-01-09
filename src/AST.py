@@ -124,5 +124,4 @@ class Function(Statement):
 
 
 class BreakStatement(Statement):
-    def __init__(self):
-        pass
+    pass

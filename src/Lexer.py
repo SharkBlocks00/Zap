@@ -137,6 +137,8 @@ for kind, value in tokens:
         parsed_tokens.append(Token(TokenKind.STRING, value))
     elif kind == "BOOLEAN":
         parsed_tokens.append(Token(TokenKind.BOOLEAN, value))
+    elif kind == "IDENTIFIER" and value == "break":
+        parsed_tokens.append(Token(TokenKind.BREAK, value))
     elif kind == "IDENTIFIER" and value in keywords:
         parsed_tokens.append(Token(TokenKind.KEYWORD, value))
     elif kind == "IDENTIFIER":
