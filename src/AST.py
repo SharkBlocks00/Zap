@@ -118,6 +118,14 @@ class Function(Statement):
         parameters: list[str],
         body: list[Statement],
     ):
+        """
+        Initialize a user-defined function node with its name, parameters, and body.
+        
+        Parameters:
+            name (str): The function's identifier.
+            parameters (list[str]): Ordered list of parameter names.
+            body (list[Statement]): Statements that form the function's body.
+        """
         self.name = name
         self.parameters = parameters
         self.body = body
