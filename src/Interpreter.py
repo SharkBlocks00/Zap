@@ -99,6 +99,18 @@ BREAK = object()
 
 
 def interpret_nodes(nodes, global_environment):
+    """
+    Execute a sequence of AST nodes in the given global environment.
+    
+    Processes each node in order, performing variable declarations and reassignments, printing outputs, evaluating conditionals, defining and calling functions, and running while/foreach loops. Side effects include mutating the provided environment and printing to stdout. Encountering a BreakStatement causes early exit and propagation of the break signal.
+    
+    Parameters:
+        nodes (iterable): Sequence of AST node objects to execute.
+        global_environment (Environment): The top-level Environment used as the parent scope for execution.
+    
+    Returns:
+        The module-level BREAK sentinel if a BreakStatement was encountered and should propagate, otherwise None.
+    """
     for node in nodes:
         # logger.debug("node=%r", node)
         if isinstance(node, BreakStatement):
