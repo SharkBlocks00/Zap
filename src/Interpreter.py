@@ -95,14 +95,31 @@ def eval_expression(expr, environment):
 
 
 global_environment = Environment()
-BREAK = object()
 
 
 def interpret_nodes(nodes, global_environment):
+    """
+    Interpret a sequence of AST nodes within the given environment, executing side-effecting statements and managing nested scopes.
+    
+    This function walks the provided nodes in order, evaluating and executing each node according to its kind (variable declarations and reassignment, output, conditionals, function definitions and calls, while and foreach loops, and break handling). It creates new child environments for block scopes (if/else bodies, loop iterations, and function bodies) so that declarations inside those blocks do not leak into the provided global environment. When a BreakStatement is encountered inside the current or any nested block, the function propagates a sentinel return value to signal the break to the caller.
+    
+    Parameters:
+        nodes (Iterable[ASTNode]): Sequence of AST nodes to interpret.
+        global_environment (Environment): The environment used as the surrounding scope for interpretation; child environments are created for block scopes.
+    
+    Returns:
+        str or None: The string "BREAK" if a BreakStatement was encountered and propagated out of the interpreted node sequence, otherwise None.
+    """
     for node in nodes:
-        # logger.debug("node=%r", node)
+        logger.debug(
+            node.value
+            if hasattr(node, "value")
+            else node.name
+            if hasattr(node, "name")
+            else type(node)
+        )
         if isinstance(node, BreakStatement):
-            return BREAK
+            return "BREAK"
         if isinstance(node, VarDeclaration):
             if node.name in keywords:
                 raise CannotAssignToKeyword(node.name)
@@ -128,8 +145,8 @@ def interpret_nodes(nodes, global_environment):
                 else:
                     block_environment = Environment(parent=global_environment)
                     result = interpret_nodes(node.else_body, block_environment)
-            if result is BREAK:
-                return BREAK
+            if result == "BREAK":
+                return "BREAK"
         elif isinstance(node, Function):
             global_environment.define(node.name, node)
         elif isinstance(node, FunctionCall):
@@ -142,7 +159,7 @@ def interpret_nodes(nodes, global_environment):
             while eval_expression(node.condition, global_environment):
                 block_environment = Environment(parent=global_environment)
                 result = interpret_nodes(node.body, block_environment)
-                if result is BREAK:
+                if result == "BREAK":
                     break
         elif isinstance(node, ForeachLoop):
             collection = eval_expression(node.collection, global_environment)
@@ -150,7 +167,7 @@ def interpret_nodes(nodes, global_environment):
                 block_environment = Environment(parent=global_environment)
                 block_environment.define(node.var_name, item)
                 result = interpret_nodes(node.body, block_environment)
-                if result is BREAK:
+                if result == "BREAK":
                     break
 
 

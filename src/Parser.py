@@ -40,6 +40,19 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
     # )
     # for token in tokens:
     #     logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
+    """
+    Dispatches parsing based on the token at `index` and returns the parsed AST statement and the next token index.
+    
+    Parameters:
+    	tokens (list[Token]): Stream of tokens to parse.
+    	index (int): Current position in the token stream to begin parsing.
+    
+    Returns:
+    	tuple[ASTStatement, int]: A tuple of the parsed AST node (statement) and the updated index after consuming the statement.
+    
+    Raises:
+    	UnexpectedTokenError: If the token at `index` does not start any supported statement form.
+    """
     token = tokens[index]
     node: ASTStatement = None  # see coz if we didnt have ASTStatement we would have to do a bunch of type checks
 
@@ -75,7 +88,7 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
         # logger.debug(f"Parsed request statement: {node.value.value}")
     elif token.kind == TokenKind.KEYWORD and token.value == "while":
         node, index = parse_while(parsed_tokens, index)
-    elif token.kind == TokenKind.BREAK:
+    elif token.kind == TokenKind.KEYWORD and token.value == "break":
         node, index = parse_Break(parsed_tokens, index)
     elif token.kind == TokenKind.KEYWORD and token.value == "foreach":
         node, index = parse_foreach(parsed_tokens, index)
@@ -201,6 +214,19 @@ def parse_let(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
 
 
 def parse_const(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
+    """
+    Parse a constant declaration starting at a 'const' keyword and produce its AST node.
+    
+    Parameters:
+        tokens (list[Token]): Token stream containing the declaration; current position must be at the 'const' token.
+        index (int): Index of the 'const' token in `tokens`.
+    
+    Returns:
+        tuple[VarDeclaration, int]: A VarDeclaration representing the constant (with mutable=False) and the index after the parsed declaration.
+    
+    Raises:
+        ExpectedTokenError: If an identifier or the '=' symbol is missing or unexpected.
+    """
     index += 1
     token = tokens[index]
     if token.kind != TokenKind.IDENTIFIER:
@@ -461,6 +487,19 @@ def parse_function(tokens: list[Token], index: int) -> tuple[Function, int]:
 
 
 def parse_FunctionCall(tokens: list[Token], index: int) -> tuple[FunctionCall, int]:
+    """
+    Parse a function call statement starting at the given index into a FunctionCall AST node.
+    
+    Parameters:
+        tokens (list[Token]): Token stream containing the function call.
+        index (int): Position of the identifier token for the function name.
+    
+    Returns:
+        tuple[FunctionCall, int]: A FunctionCall node for the parsed call and the index immediately after the terminating semicolon.
+    
+    Raises:
+        ExpectedTokenError: If any of the expected symbols "(", ")", or ";" are missing or different.
+    """
     token = tokens[index]
     function_name = token.value
     index += 1
@@ -480,9 +519,20 @@ def parse_FunctionCall(tokens: list[Token], index: int) -> tuple[FunctionCall, i
 
 
 def parse_Break(tokens: list[Token], index: int) -> tuple[BreakStatement, int]:
+    """
+    Parse a `break` statement starting at the provided token index and return its AST node and the index after the terminating semicolon.
+    
+    Parameters:
+        tokens (list[Token]): Token stream being parsed.
+        index (int): Current index pointing at the `break` keyword.
+    
+    Returns:
+        tuple[BreakStatement, int]: A BreakStatement node and the index immediately after the required `;`.
+    
+    Raises:
+        ExpectedTokenError: If the terminating semicolon `;` is not present.
+    """
     index += 1
-    if index >= len(tokens):
-        raise ParseError("Unexpected end of input while parsing break") from None
     token = tokens[index]
     if token.kind != TokenKind.SYMBOL or token.value != ";":
         raise ExpectedTokenError(";", token.value if token else "end of input")

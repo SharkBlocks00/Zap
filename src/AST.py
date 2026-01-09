@@ -118,10 +118,24 @@ class Function(Statement):
         parameters: list[str],
         body: list[Statement],
     ):
+        """
+        Initialize a Function AST node representing a function declaration.
+        
+        Parameters:
+        	name (str): The function's identifier.
+        	parameters (list[str]): Ordered list of parameter names.
+        	body (list[Statement]): Sequence of statements that form the function body.
+        """
         self.name = name
         self.parameters = parameters
         self.body = body
 
 
 class BreakStatement(Statement):
-    pass
+    def __init__(self):
+        """
+        Initialize a BreakStatement AST node.
+        
+        Instances represent a break control-flow statement in the abstract syntax tree; this constructor performs no additional initialization.
+        """
+        pass
