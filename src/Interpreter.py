@@ -2,6 +2,7 @@ from AST import (
     BinaryExpression,
     BooleanExpression,
     BooleanLiteral,
+    BreakStatement,
     ForeachLoop,
     Function,
     FunctionCall,
@@ -94,13 +95,14 @@ def eval_expression(expr, environment):
 
 
 global_environment = Environment()
+BREAK = object()
 
 
 def interpret_nodes(nodes, global_environment):
     for node in nodes:
-        # logger.debug(node.value if hasattr(node, 'value') else node.name if hasattr(node, 'name') else type(node))
-        if node == "break":
-            return "BREAK"
+        # logger.debug("node=%r", node)
+        if isinstance(node, BreakStatement):
+            return BREAK
         if isinstance(node, VarDeclaration):
             if node.name in keywords:
                 raise CannotAssignToKeyword(node.name)
@@ -113,7 +115,7 @@ def interpret_nodes(nodes, global_environment):
                 node.name, eval_expression(node.value, global_environment)
             )
         elif isinstance(node, OutputStatement):
-            #logger.debug(f"OutputStatement: {node.value}")
+            # logger.debug(f"OutputStatement: {node.value}")
             print(eval_expression(node.value, global_environment))
         elif isinstance(node, IfStatement):
             result = None
@@ -126,8 +128,8 @@ def interpret_nodes(nodes, global_environment):
                 else:
                     block_environment = Environment(parent=global_environment)
                     result = interpret_nodes(node.else_body, block_environment)
-            if result == "BREAK":
-                return "BREAK"
+            if result is BREAK:
+                return BREAK
         elif isinstance(node, Function):
             global_environment.define(node.name, node)
         elif isinstance(node, FunctionCall):
@@ -140,7 +142,7 @@ def interpret_nodes(nodes, global_environment):
             while eval_expression(node.condition, global_environment):
                 block_environment = Environment(parent=global_environment)
                 result = interpret_nodes(node.body, block_environment)
-                if result == "BREAK":
+                if result is BREAK:
                     break
         elif isinstance(node, ForeachLoop):
             collection = eval_expression(node.collection, global_environment)
@@ -148,7 +150,7 @@ def interpret_nodes(nodes, global_environment):
                 block_environment = Environment(parent=global_environment)
                 block_environment.define(node.var_name, item)
                 result = interpret_nodes(node.body, block_environment)
-                if result == "BREAK":
+                if result is BREAK:
                     break
 
 

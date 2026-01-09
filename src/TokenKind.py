@@ -10,3 +10,4 @@ class TokenKind(Enum):
     STRING = "STRING"
     BOOLEAN = "BOOLEAN"
     FunctionCall = "FunctionCall"
+    BREAK = "BREAK"
