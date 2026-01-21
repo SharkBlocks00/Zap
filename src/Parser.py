@@ -42,14 +42,14 @@ def parse_statement(tokens: list[Token], index: int) -> tuple[ASTStatement, int]
     #     logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
     """
     Parse a single statement beginning at the given token index and produce its AST node and the next token position.
-    
+
     Parameters:
         tokens (list[Token]): The token list to parse from.
         index (int): The current position in `tokens` to start parsing.
-    
+
     Returns:
         tuple[ASTStatement, int]: `(node, index)` where `node` is the parsed statement AST node (or `None` for empty/no-op statements) and `index` is the token position immediately after the parsed statement.
-    
+
     Raises:
         UnexpectedTokenError: If the token at `index` is not a valid statement start or an unexpected keyword is encountered.
     """
@@ -159,7 +159,7 @@ def parse_primary(tokens: list[Token], index: int) -> tuple[Expression | None, i
     if token.kind == TokenKind.NUMBER:
         return NumberLiteral(int(token.value)), index + 1
     if token.kind == TokenKind.BOOLEAN:
-        return BooleanLiteral(bool(token.value)), index + 1
+        return BooleanLiteral(str(token.value).lower()), index + 1
     if token.kind == TokenKind.STRING:
         return StringLiteral(token.value), index + 1
     if token.kind == TokenKind.IDENTIFIER:
@@ -216,12 +216,12 @@ def parse_let(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
 def parse_const(tokens: list[Token], index: int) -> tuple[VarDeclaration, int]:
     """
     Parse a constant variable declaration starting at the current `const` token.
-    
+
     Parses an identifier, an equals sign, and an expression, and returns a VarDeclaration node marked immutable along with the index positioned after the terminating token.
-    
+
     Returns:
         tuple[VarDeclaration, int]: A tuple containing the `VarDeclaration` for the declared constant and the updated token index (position after the declaration).
-    
+
     Raises:
         ExpectedTokenError: If an identifier or the '=' symbol is not found where expected.
     """
@@ -487,14 +487,14 @@ def parse_function(tokens: list[Token], index: int) -> tuple[Function, int]:
 def parse_FunctionCall(tokens: list[Token], index: int) -> tuple[FunctionCall, int]:
     """
     Parse a function call starting at the given token index and return the corresponding AST node and the next index after the call.
-    
+
     Parameters:
         tokens (list[Token]): Sequence of tokens produced by the lexer.
         index (int): Current index in `tokens` pointing at the function name.
-    
+
     Returns:
         tuple[FunctionCall, int]: A FunctionCall AST node for the parsed call and the updated token index positioned after the terminating semicolon.
-    
+
     Raises:
         ExpectedTokenError: If the expected "(", ")", or ";" tokens are not found at the appropriate positions.
     """
@@ -519,10 +519,10 @@ def parse_FunctionCall(tokens: list[Token], index: int) -> tuple[FunctionCall, i
 def parse_Break(tokens: list[Token], index: int) -> tuple[BreakStatement, int]:
     """
     Parse a `break` statement and advance the token index past its terminating semicolon.
-    
+
     Returns:
         tuple(BreakStatement, int): The parsed BreakStatement node and the next token index (position after the semicolon).
-    
+
     Raises:
         ParseError: If input ends unexpectedly while parsing the break.
         ExpectedTokenError: If the token following `break` is not a semicolon (`";"`).

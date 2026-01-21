@@ -10,6 +10,9 @@ logger = get_logger(__name__)
 source: str = """
 let name = request("Enter your name: ");
 output("Hi" + name);
+if (false) {
+    output("Hello, world!");
+}
 """
 
 i: int = 0
@@ -70,7 +73,7 @@ while i < len(source):
         ):
             i += 1
 
-        if source[start:i] == "True" or source[start:i] == "False":
+        if source[start:i] == "true" or source[start:i] == "false":
             tokens.append(("BOOLEAN", source[start:i]))
         elif source[start : i + 1].endswith("(") and source[start:i] not in keywords:
             tokens.append(("FunctionCall", source[start:i]))

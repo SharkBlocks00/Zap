@@ -52,7 +52,7 @@ class StringLiteral(Expression):
 
 
 class BooleanLiteral(Expression):
-    def __init__(self, value: bool):
+    def __init__(self, value: str | bool):
         self.value = value
 
 
@@ -120,7 +120,7 @@ class Function(Statement):
     ):
         """
         Initialize a user-defined function node with its name, parameters, and body.
-        
+
         Parameters:
             name (str): The function's identifier.
             parameters (list[str]): Ordered list of parameter names.

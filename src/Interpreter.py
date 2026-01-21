@@ -1,3 +1,5 @@
+from ensurepip import bootstrap
+
 from AST import (
     BinaryExpression,
     BooleanExpression,
@@ -42,7 +44,14 @@ def eval_expression(expr, environment):
     if isinstance(expr, StringLiteral):
         return expr.value
     if isinstance(expr, BooleanLiteral):
-        return expr.value
+        if expr.value == "true":
+            return True
+        elif expr.value == "false":
+            return False
+        elif expr.value == "null":
+            return None
+        else:
+            raise ValueError(f"Invalid boolean value: {expr.value}")
     if isinstance(expr, Identifier):
         value = environment.get(expr.name)
         if isinstance(value, list) and len(value) == 2:
