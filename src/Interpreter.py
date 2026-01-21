@@ -53,7 +53,23 @@ def eval_expression(expr, environment):
         right = eval_expression(expr.right, environment)
 
         if expr.operator == "+":
-            return left + right
+            try:
+                return left + right
+            except TypeError:
+                if isinstance(right, tuple):
+                    return (left + " ") + right[0]
+                elif isinstance(left, tuple):
+                    return left[0] + (" " + right)
+                elif isinstance(left, str) and isinstance(right, str):
+                    return left + " " + right
+                elif isinstance(left, tuple) and isinstance(right, tuple):
+                    return left[0] + (" " + right[0])
+                elif isinstance(left, tuple) and isinstance(right, str):
+                    return left[0] + (" " + right)
+                elif isinstance(left, str) and isinstance(right, tuple):
+                    return left + (" " + right[0])
+                elif isinstance(left, tuple) and isinstance(right, tuple):
+                    return left[0] + (" " + right[0])
         elif expr.operator == "-":
             return left - right
         elif expr.operator == "*":
@@ -101,13 +117,13 @@ BREAK = object()
 def interpret_nodes(nodes, global_environment):
     """
     Execute a sequence of AST nodes in the given global environment.
-    
+
     Processes each node in order, performing variable declarations and reassignments, printing outputs, evaluating conditionals, defining and calling functions, and running while/foreach loops. Side effects include mutating the provided environment and printing to stdout. Encountering a BreakStatement causes early exit and propagation of the break signal.
-    
+
     Parameters:
         nodes (iterable): Sequence of AST node objects to execute.
         global_environment (Environment): The top-level Environment used as the parent scope for execution.
-    
+
     Returns:
         The module-level BREAK sentinel if a BreakStatement was encountered and should propagate, otherwise None.
     """

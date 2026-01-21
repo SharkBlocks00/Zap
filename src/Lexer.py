@@ -8,10 +8,8 @@ from TokenKind import TokenKind
 logger = get_logger(__name__)
 
 source: str = """
-while (True) {
-    output("Hello, World!");
-    break;
-}
+let name = request("Enter your name: ");
+output("Hi" + name);
 """
 
 i: int = 0
