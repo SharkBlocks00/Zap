@@ -8,7 +8,6 @@
 ## Contents
 - [Const modifier](#const-modifier)
 - [Request statement](#request-statement)
-- [Error if code after ';' on each line](#semi-colon-code-error)
 - [More error handling](#better-errors)
 - [Comments](#comments)
 - [While Loops](#while-loops)
@@ -31,14 +30,6 @@ the mutable value, if True, allow mutability, otherwise throw error.
 
 "request" as a keyword can be put after a ``let <var_name> = request();`` and any information inside the request parenthesis will be 
 passed into a python ``input()`` statement, and the value assigned to the declared/reassigned variable. Not too sure on implementation methods currently, however, will figure it out.
-
----
-
-## Semi Colon Code Error
-### - [ ] Completed 
-
-Currently, you can put infinite amounts of code on a singular line. This could lead to developers using Zap (for whatever reason) to 
-be annoying to themselves and other developers, by coding an entire program on line 1. Instead, this should make it so that if there is any code after a semi colon, it will throw an error, as long as it is not inside a loop and so like a '}' for example. Implementation idea: Simply just check for code after a semi colon token, and check if it is a right curly brace, and if not, error.
 
 ---
 

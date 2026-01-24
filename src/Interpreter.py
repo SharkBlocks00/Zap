@@ -1,5 +1,3 @@
-from ensurepip import bootstrap
-
 from AST import (
     BinaryExpression,
     BooleanExpression,
