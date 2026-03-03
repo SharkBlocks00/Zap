@@ -15,144 +15,156 @@ if (false) {
 }
 """
 
-i: int = 0
-tokens: list[Any] = []
 
-keywords: list[str] = [
-    "let",
-    "output",
-    "request",
-    "if",
-    "else",
-    "elseif",
-    "func",
-    "define",
-    "while",
-    "break",
-    "foreach",
-    "const",
-]
+class Lexer:
+    def __init__(self):
+        self.i: int = 0
+        self.tokens: list[Any] = []
 
-line_count: int = -1
+        self.keywords: list[str] = [
+            "let",
+            "output",
+            "request",
+            "if",
+            "else",
+            "elseif",
+            "func",
+            "define",
+            "while",
+            "break",
+            "foreach",
+            "const",
+        ]
 
-while i < len(source):
-    char = source[i]
+        self.line_count: int = -1
 
-    if char == "\n":
-        line_count += 1
-        i += 1
-        continue
+    def lexate(self, source):
+        while self.i < len(source):
+            char = source[self.i]
 
-    if char.isspace():
-        i += 1
-        continue
-
-    if char == "-" and i + 1 < len(source) and source[i + 1] == "-":
-        while i < len(source) and source[i] != "\n":
-            i += 1
-        continue
-
-    if char == '"':
-        i += 1
-        start = i
-
-        while i < len(source) and source[i] != '"':
-            i += 1
-
-        if i >= len(source):
-            raise UnterminatedStringError(line=line_count + 1)
-
-        tokens.append(("STRING", source[start:i]))
-        i += 1
-        continue
-
-    if char.isalpha():
-        start = i
-        while i < len(source) and (
-            source[i].isalnum() or source[i] == "_" or source[i] == "-"
-        ):
-            i += 1
-
-        if source[start:i] == "true" or source[start:i] == "false":
-            tokens.append(("BOOLEAN", source[start:i]))
-        elif source[start : i + 1].endswith("(") and source[start:i] not in keywords:
-            tokens.append(("FunctionCall", source[start:i]))
-        else:
-            # logger.debug(f"Identified identifier: {source[start:i]}")
-            tokens.append(("IDENTIFIER", source[start:i]))
-        continue
-
-    if char.isdigit():
-        start = i
-        while i < len(source) and source[i].isdigit():
-            i += 1
-        tokens.append(("NUMBER", source[start:i]))
-        continue
-
-    if char in [
-        "=",
-        ";",
-        "(",
-        ")",
-        "{",
-        "}",
-        "+",
-        "-",
-        "*",
-        "/",
-        "!",
-        "<",
-        ">",
-        ":",
-        "&",
-        "|",
-    ]:
-        if (
-            char in ["=", "!", "<", ">"]
-            and i + 1 < len(source)
-            and source[i + 1] == "="
-        ):
-            tokens.append(("SYMBOL", char + "="))
-            i += 2
-            continue
-        elif char in ["&", "|"]:
-            if source[i + 1] in ["&", "|"]:
-                tokens.append(("SYMBOL", char + char))
-                i += 2
+            if char == "\n":
+                self.line_count += 1
+                self.i += 1
                 continue
-            tokens.append(("SYMBOL", char))
-            i += 1
-            continue
-        tokens.append(("SYMBOL", char))
-        i += 1
-        continue
 
-    raise UnexpectedTokenError(char, line=line_count + 1)
+            if char.isspace():
+                self.i += 1
+                continue
 
-# logger.debug(tokens)
+            if char == "-" and self.i + 1 < len(source) and source[self.i + 1] == "-":
+                while self.i < len(source) and source[self.i] != "\n":
+                    self.i += 1
+                continue
 
-parsed_tokens: list[Any] = []
+            if char == '"':
+                self.i += 1
+                start = self.i
 
-for kind, value in tokens:
-    if kind == "STRING":
-        parsed_tokens.append(Token(TokenKind.STRING, value))
-    elif kind == "BOOLEAN":
-        parsed_tokens.append(Token(TokenKind.BOOLEAN, value))
-    elif kind == "IDENTIFIER" and value == "break":
-        parsed_tokens.append(Token(TokenKind.BREAK, value))
-    elif kind == "IDENTIFIER" and value in keywords:
-        parsed_tokens.append(Token(TokenKind.KEYWORD, value))
-    elif kind == "IDENTIFIER":
-        parsed_tokens.append(Token(TokenKind.IDENTIFIER, value))
-    elif kind == "NUMBER":
-        parsed_tokens.append(Token(TokenKind.NUMBER, value))
-    elif kind == "SYMBOL":
-        parsed_tokens.append(Token(TokenKind.SYMBOL, value))
-    elif kind == "FunctionCall":
-        parsed_tokens.append(Token(TokenKind.FunctionCall, value))
-    else:
-        raise UnexpectedTokenError(value)
+                while self.i < len(source) and source[self.i] != '"':
+                    self.i += 1
 
-# for token in parsed_tokens:
-#     logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
-# logger.debug(f"Line count: {line_count}")
+                if self.i >= len(source):
+                    raise UnterminatedStringError(line=self.line_count + 1)
+
+                self.tokens.append(("STRING", source[start : self.i]))
+                self.i += 1
+                continue
+
+            if char.isalpha():
+                start = self.i
+                while self.i < len(source) and (
+                    source[self.i].isalnum()
+                    or source[self.i] == "_"
+                    or source[self.i] == "-"
+                ):
+                    self.i += 1
+
+                if (
+                    source[start : self.i] == "true"
+                    or source[start : self.i] == "false"
+                ):
+                    self.tokens.append(("BOOLEAN", source[start : self.i]))
+                elif (
+                    source[start : self.i + 1].endswith("(")
+                    and source[start : self.i] not in self.keywords
+                ):
+                    self.tokens.append(("FunctionCall", source[start : self.i]))
+                else:
+                    # logger.debug(f"Identified identifier: {source[start:i]}")
+                    self.tokens.append(("IDENTIFIER", source[start : self.i]))
+                continue
+
+            if char.isdigit():
+                start = self.i
+                while self.i < len(source) and source[self.i].isdigit():
+                    self.i += 1
+                self.tokens.append(("NUMBER", source[start : self.i]))
+                continue
+
+            if char in [
+                "=",
+                ";",
+                "(",
+                ")",
+                "{",
+                "}",
+                "+",
+                "-",
+                "*",
+                "/",
+                "!",
+                "<",
+                ">",
+                ":",
+                "&",
+                "|",
+            ]:
+                if (
+                    char in ["=", "!", "<", ">"]
+                    and self.i + 1 < len(source)
+                    and source[self.i + 1] == "="
+                ):
+                    self.tokens.append(("SYMBOL", char + "="))
+                    self.i += 2
+                    continue
+                elif char in ["&", "|"]:
+                    if source[self.i + 1] in ["&", "|"]:
+                        self.tokens.append(("SYMBOL", char + char))
+                        self.i += 2
+                        continue
+                    self.tokens.append(("SYMBOL", char))
+                    self.i += 1
+                    continue
+                self.tokens.append(("SYMBOL", char))
+                self.i += 1
+                continue
+
+            raise UnexpectedTokenError(char, line=self.line_count + 1)
+
+        # logger.debug(f"Tokens: {self.tokens}")
+        self.parsed_tokens: list[Any] = []
+
+        for kind, value in self.tokens:
+            if kind == "STRING":
+                self.parsed_tokens.append(Token(TokenKind.STRING, value))
+            elif kind == "BOOLEAN":
+                self.parsed_tokens.append(Token(TokenKind.BOOLEAN, value))
+            elif kind == "IDENTIFIER" and value == "break":
+                self.parsed_tokens.append(Token(TokenKind.BREAK, value))
+            elif kind == "IDENTIFIER" and value in self.keywords:
+                self.parsed_tokens.append(Token(TokenKind.KEYWORD, value))
+            elif kind == "IDENTIFIER":
+                self.parsed_tokens.append(Token(TokenKind.IDENTIFIER, value))
+            elif kind == "NUMBER":
+                self.parsed_tokens.append(Token(TokenKind.NUMBER, value))
+            elif kind == "SYMBOL":
+                self.parsed_tokens.append(Token(TokenKind.SYMBOL, value))
+            elif kind == "FunctionCall":
+                self.parsed_tokens.append(Token(TokenKind.FunctionCall, value))
+            else:
+                raise UnexpectedTokenError(value)
+        return self.parsed_tokens
+
+        # for token in parsed_tokens:
+        #     logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
+        # logger.debug(f"Line count: {line_count}")
