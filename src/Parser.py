@@ -1,6 +1,8 @@
+from types import NoneType
 from typing import TypeAlias
 
 from AST import (
+    AssertStatement,
     BinaryExpression,
     BooleanExpression,
     BooleanLiteral,
@@ -21,6 +23,7 @@ from AST import (
     WhileLoop,
 )
 from Errors.ParseErrors import ExpectedTokenError, ParseError, UnexpectedTokenError
+from Errors.RuntimeErrors import InvalidAssertStatementError
 from Lexer import Lexer
 from Logger import get_logger
 from Token import Token
@@ -101,6 +104,8 @@ class Parser:
             node, index = self.parse_Break(self.tokens, index)
         elif token.kind == TokenKind.KEYWORD and token.value == "foreach":
             node, index = self.parse_foreach(self.tokens, index)
+        elif token.kind == TokenKind.KEYWORD and token.value == "assert":
+            node, index = self.parse_assert(self.tokens, index)
         else:
             raise UnexpectedTokenError(tokens[index].value)
         return node, index
@@ -282,7 +287,7 @@ class Parser:
     def parse_output(
         self, tokens: list[Token], index: int
     ) -> tuple[OutputStatement, int]:
-        #print("Parsing output statement")
+        # print("Parsing output statement")
         index += 1
         token = tokens[index]
         if token.kind != TokenKind.SYMBOL or token.value != "(":
@@ -354,6 +359,43 @@ class Parser:
         index += 1
         assert condition is not None
         return WhileLoop(condition, body_nodes), index
+
+    def parse_assert(
+        self, tokens: list[Token], index: int
+    ) -> tuple[AssertStatement, int]:
+        index += 1
+        token = tokens[index]
+        if token.kind != TokenKind.SYMBOL or token.value != "(":
+            raise ExpectedTokenError("(", token.value if token else "end of input")
+        index += 1
+        condition, index = self.parse_expression(tokens, index)
+        if not condition:
+            raise InvalidAssertStatementError("")
+        token = tokens[index]
+        if token.kind != TokenKind.SYMBOL or token.value != ",":
+            index += 1
+            message = None
+        else:
+            index += 1
+            token = tokens[index]
+            if token.kind != TokenKind.STRING:
+                raise ExpectedTokenError('"', token.value if token else "end of input")
+            message = token.value
+            index += 1
+            token = tokens[index]
+        token = tokens[index]
+        if token.kind != TokenKind.SYMBOL or token.value != ")":
+            if token.kind == TokenKind.SYMBOL and token.value == ";":
+                assert condition is not None
+                return AssertStatement(condition, message), index + 1
+            else:
+                raise ExpectedTokenError(")", token.value if token else "end of input")
+
+        index += 1
+        token = tokens[index]
+        index += 1
+        assert condition is not None
+        return AssertStatement(condition, message), index
 
     def parse_foreach(self, tokens: list[Token], index: int) -> tuple[ForeachLoop, int]:
         index += 1

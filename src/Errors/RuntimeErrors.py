@@ -40,3 +40,19 @@ class NotCallableError(RuntimeError):
         self, name: str, *, line: int | None = None, column: int | None = None
     ):
         super().__init__(f"'{name}' is not callable", line=line, column=column)
+
+
+class InvalidAssertStatementError(RuntimeError):
+    def __init__(
+        self, name: str, *, line: int | None = None, column: int | None = None
+    ):
+        super().__init__(
+            f"Invalid assert statement: '{name}'", line=line, column=column
+        )
+
+
+class AssertionFailedError(RuntimeError):
+    def __init__(
+        self, message: str, *, line: int | None = None, column: int | None = None
+    ):
+        super().__init__(f"{message}", line=line, column=column)

@@ -34,6 +34,7 @@ class Lexer:
             "break",
             "foreach",
             "const",
+            "assert",
         ]
 
         self.line_count: int = -1
@@ -118,6 +119,7 @@ class Lexer:
                 ":",
                 "&",
                 "|",
+                ",",
             ]:
                 if (
                     char in ["=", "!", "<", ">"]
@@ -132,9 +134,6 @@ class Lexer:
                         self.tokens.append(("SYMBOL", char + char))
                         self.i += 2
                         continue
-                    self.tokens.append(("SYMBOL", char))
-                    self.i += 1
-                    continue
                 self.tokens.append(("SYMBOL", char))
                 self.i += 1
                 continue

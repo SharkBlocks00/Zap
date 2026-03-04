@@ -111,6 +111,12 @@ class ForeachLoop(Statement):
         self.body = body
 
 
+class AssertStatement(Statement):
+    def __init__(self, condition: Expression, message: str | None = None):
+        self.condition = condition
+        self.message = message
+
+
 class Function(Statement):
     def __init__(
         self,

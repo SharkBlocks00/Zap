@@ -1,4 +1,5 @@
 from AST import (
+    AssertStatement,
     BinaryExpression,
     BooleanExpression,
     BooleanLiteral,
@@ -18,7 +19,11 @@ from AST import (
 )
 from classes.Environment import Environment
 from Errors.Errors import ZapError
-from Errors.RuntimeErrors import CannotAssignToKeyword, NotCallableError
+from Errors.RuntimeErrors import (
+    AssertionFailedError,
+    CannotAssignToKeyword,
+    NotCallableError,
+)
 from Errors.TypeErrors import InvalidBinaryOperation
 from Lexer import Lexer
 from Logger import get_logger
@@ -230,3 +235,11 @@ class Interpreter:
 
                     if result is self.BREAK:
                         break
+
+            elif isinstance(node, AssertStatement):
+                condition = self.eval_expression(node.condition, global_environment)
+                if not condition:
+                    if node.message is not None:
+                        raise AssertionFailedError(node.message)
+                    else:
+                        raise AssertionFailedError("Assertion failed")
