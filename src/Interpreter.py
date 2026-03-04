@@ -204,7 +204,12 @@ class Interpreter:
             elif isinstance(node, FunctionCall):
                 function = global_environment.get(node.name)
                 if not isinstance(function, Function):
-                    raise NotCallableError(node.name)
+                    if isinstance(function, tuple):
+                        if not isinstance(function[0], Function):
+                            raise NotCallableError(node.name)
+                        function = function[0]
+                    else:
+                        raise NotCallableError(node.name)
                 function_environment = Environment(parent=global_environment)
                 self.interpret_nodes(function.body, function_environment)
 
