@@ -35,6 +35,7 @@ logger = get_logger(__name__)
 class Interpreter:
     def __init__(self, lexer: Lexer, parser: Parser):
         self.environment = Environment()
+        self.global_environment = Environment()
         self.parser = parser
         self.nodes = self.parser.nodes
         self.lexer = lexer
@@ -148,7 +149,6 @@ class Interpreter:
 
         raise InvalidBinaryOperation(expr, "UNKNOWN", None)
 
-    global_environment = Environment()
     BREAK = object()
 
     def interpret_nodes(self, in_nodes, global_environment):
