@@ -58,7 +58,7 @@ class Interpreter:
                 raise ValueError(f"Invalid boolean value: {expr.value}")
         if isinstance(expr, Identifier):
             value = environment.get(expr.name)
-            if isinstance(value, list) and len(value) == 2:
+            if isinstance(value, list) or isinstance(value, tuple) and len(value) == 2:
                 return value[0]
             return value
         if isinstance(expr, BinaryExpression):
@@ -70,19 +70,19 @@ class Interpreter:
                     return left + right
                 except TypeError:
                     if isinstance(right, tuple):
-                        return (left + " ") + right[0]
+                        return (left + " ") + str(right[0])
                     elif isinstance(left, tuple):
-                        return left[0] + (" " + right)
+                        return str(left[0]) + (" " + str(right))
                     elif isinstance(left, str) and isinstance(right, str):
                         return left + " " + right
                     elif isinstance(left, tuple) and isinstance(right, tuple):
-                        return left[0] + (" " + right[0])
+                        return str(left[0]) + (" " + str(right[0]))
                     elif isinstance(left, tuple) and isinstance(right, str):
-                        return left[0] + (" " + right)
+                        return str(left[0]) + (" " + right)
                     elif isinstance(left, str) and isinstance(right, tuple):
-                        return left + (" " + right[0])
+                        return left + (" " + str(right[0]))
                     elif isinstance(left, tuple) and isinstance(right, tuple):
-                        return left[0] + (" " + right[0])
+                        return str(left[0]) + (" " + str(right[0]))
             elif expr.operator == "-":
                 return left - right
             elif expr.operator == "*":
@@ -93,6 +93,27 @@ class Interpreter:
             left = self.eval_expression(expr.left, environment)
             right = self.eval_expression(expr.right, environment)
 
+            # logger.debug(
+            #     f"Evaluating boolean expression: {left} {expr.operator} {right}"
+            # )
+            if isinstance(left, tuple):
+                left = left[0]
+            if isinstance(right, tuple):
+                right = right[0]
+            if isinstance(left, str):
+                try:
+                    left = float(left)
+                except ValueError:
+                    raise ZapError(
+                        f"Invalid left operand for boolean expression: {left}"
+                    ) from None
+            if isinstance(right, str):
+                try:
+                    right = float(right)
+                except ValueError:
+                    raise ZapError(
+                        f"Invalid right operand for boolean expression: {right}"
+                    ) from None
             if expr.operator == "==":
                 return left == right
             elif expr.operator == "<":
@@ -159,11 +180,13 @@ class Interpreter:
                 # print("Output statement called")
                 # logger.debug(f"OutputStatement: {node.value}")
                 print(self.eval_expression(node.value, global_environment))
+
             elif isinstance(node, IfStatement):
                 result = None
                 if self.eval_expression(node.condition, global_environment):
                     block_environment = Environment(parent=global_environment)
                     result = self.interpret_nodes(node.body, block_environment)
+
                 elif node.else_body:
                     if isinstance(node.else_body, IfStatement):
                         result = self.interpret_nodes(
@@ -174,25 +197,31 @@ class Interpreter:
                         result = self.interpret_nodes(node.else_body, block_environment)
                 if result is self.BREAK:
                     return self.BREAK
+
             elif isinstance(node, Function):
                 global_environment.define(node.name, node)
+
             elif isinstance(node, FunctionCall):
                 function = global_environment.get(node.name)
                 if not isinstance(function, Function):
                     raise NotCallableError(node.name)
                 function_environment = Environment(parent=global_environment)
                 self.interpret_nodes(function.body, function_environment)
+
             elif isinstance(node, WhileLoop):
                 while self.eval_expression(node.condition, global_environment):
                     block_environment = Environment(parent=global_environment)
                     result = self.interpret_nodes(node.body, block_environment)
                     if result is self.BREAK:
                         break
+
             elif isinstance(node, ForeachLoop):
                 collection = self.eval_expression(node.collection, global_environment)
                 for item in collection:
+                    # logger.debug(f"Foreach loop, item: {item}")
                     block_environment = Environment(parent=global_environment)
                     block_environment.define(node.var_name, item)
                     result = self.interpret_nodes(node.body, block_environment)
+
                     if result is self.BREAK:
                         break

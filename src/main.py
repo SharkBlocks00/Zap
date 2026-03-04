@@ -1,5 +1,6 @@
 import os
 import sys
+
 from Errors.Errors import ZapError
 from Interpreter import Interpreter
 from Lexer import Lexer
@@ -23,7 +24,6 @@ def main():
         print(f"Invalid file type: {file_path}")
         return
 
-
     try:
         with open(file_path, "r") as f:
             source = f.read()
@@ -33,7 +33,6 @@ def main():
     except Exception as e:
         print(f"Error reading file: {e}")
         return
-
 
     lexer = Lexer()
     parser = Parser(source, lexer)
