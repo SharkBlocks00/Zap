@@ -120,6 +120,7 @@ class Lexer:
                 "&",
                 "|",
                 ",",
+                "%",
             ]:
                 if (
                     char in ["=", "!", "<", ">"]
@@ -134,6 +135,32 @@ class Lexer:
                         self.tokens.append(("SYMBOL", char + char))
                         self.i += 2
                         continue
+                elif char in ["+", "-", "*", "/", "%"]:
+                    if (
+                        char == "+"
+                        and source[self.i + 1] == "+"
+                        or source[self.i + 1] == "="
+                    ):
+                        self.tokens.append(("SYMBOL", char + source[self.i + 1]))
+                        self.i += 2
+                        continue
+                    elif char == "-" and source[self.i + 1] == "=":
+                        self.tokens.append(("SYMBOL", char + source[self.i + 1]))
+                        self.i += 2
+                        continue
+                    elif char == "%" and source[self.i + 1] == "=":
+                        self.tokens.append(("SYMBOL", char + source[self.i + 1]))
+                        self.i += 2
+                        continue
+                    elif char == "*" and source[self.i + 1] == "=":
+                        self.tokens.append(("SYMBOL", char + source[self.i + 1]))
+                        self.i += 2
+                        continue
+                    elif char == "/" and source[self.i + 1] == "=":
+                        self.tokens.append(("SYMBOL", char + source[self.i + 1]))
+                        self.i += 2
+                        continue
+
                 self.tokens.append(("SYMBOL", char))
                 self.i += 1
                 continue
@@ -164,6 +191,6 @@ class Lexer:
                 raise UnexpectedTokenError(value)
         return self.parsed_tokens
 
-        # for token in parsed_tokens:
+        # for token in self.parsed_tokens:
         #     logger.debug(f"TokenKind: {token.kind}, Value: {token.value}")
-        # logger.debug(f"Line count: {line_count}")
+        # logger.debug(f"Line count: {self.line_count}")

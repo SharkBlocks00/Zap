@@ -178,9 +178,23 @@ class Interpreter:
                     node.mutable,
                 )
             elif isinstance(node, VarReassignment):
-                global_environment.assign(
-                    node.name, self.eval_expression(node.value, global_environment)
-                )
+                if node.operator is not None:
+                    value = self.eval_expression(node.value, global_environment)
+                    current_value = global_environment.get(node.name)[0]
+                    if node.operator == "+=":
+                        global_environment.assign(node.name, current_value + value)
+                    elif node.operator == "-=":
+                        global_environment.assign(node.name, current_value - value)
+                    elif node.operator == "*=":
+                        global_environment.assign(node.name, current_value * value)
+                    elif node.operator == "/=":
+                        global_environment.assign(node.name, current_value / value)
+                    elif node.operator == "%=":
+                        global_environment.assign(node.name, current_value % value)
+                else:
+                    global_environment.assign(
+                        node.name, self.eval_expression(node.value, global_environment)
+                    )
             elif isinstance(node, OutputStatement):
                 # print("Output statement called")
                 # logger.debug(f"OutputStatement: {node.value}")

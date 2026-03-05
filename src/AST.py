@@ -21,9 +21,10 @@ class VarDeclaration(Statement):
 
 
 class VarReassignment(Statement):
-    def __init__(self, name: str, value: Expression):
+    def __init__(self, name: str, value: Expression, operator: str | None = None):
         self.name = name
         self.value = value
+        self.operator = operator
 
 
 class OutputStatement(Statement):

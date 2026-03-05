@@ -212,6 +212,7 @@ class Parser:
         token = tokens[index]
         # logger.debug(f"Token: {token.kind}, Value: {token.value}")
         if token.kind != TokenKind.SYMBOL or token.value != "=":
+            logger.debug("215")
             raise ExpectedTokenError("=", token.value)
 
         index += 1
@@ -252,6 +253,7 @@ class Parser:
         token = tokens[index]
 
         if token.kind != TokenKind.SYMBOL or token.value != "=":
+            logger.debug("256")
             raise ExpectedTokenError("=", token.value)
 
         index += 1
@@ -269,9 +271,22 @@ class Parser:
         var_name = token.value
         index += 1
         token = tokens[index]
+        operator = None
 
         if token.kind != TokenKind.SYMBOL or token.value != "=":
-            raise ExpectedTokenError("=", token.value)
+            if token.kind == TokenKind.SYMBOL and token.value == "+=":
+                operator = "+="
+            elif token.kind == TokenKind.SYMBOL and token.value == "-=":
+                operator = "-="
+            elif token.kind == TokenKind.SYMBOL and token.value == "*=":
+                operator = "*="
+            elif token.kind == TokenKind.SYMBOL and token.value == "/=":
+                operator = "/="
+            elif token.kind == TokenKind.SYMBOL and token.value == "%=":
+                operator = "%="
+            else:
+                logger.debug("276")
+                raise ExpectedTokenError("=", token.value)
 
         index += 1
         value, index = self.parse_expression(tokens, index)
@@ -282,7 +297,7 @@ class Parser:
 
         index += 1
         assert value is not None
-        return VarReassignment(var_name, value), index
+        return VarReassignment(var_name, value, operator), index
 
     def parse_output(
         self, tokens: list[Token], index: int
@@ -508,6 +523,7 @@ class Parser:
         index += 1
         token = tokens[index]
         if token.kind != TokenKind.SYMBOL or token.value != "=":
+            logger.debug("514")
             raise ExpectedTokenError("=", token.value if token else "end of input")
 
         index += 1
