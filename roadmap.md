@@ -71,7 +71,7 @@ iterate over each character in the string.
 ---
 
 ## Filing
-### - [ ] Completed
+### - [X] Completed
 
 The filing update would mean that you can create & run .zap files instead of having to type out zap code in the lexer file. We can instead perhaps implement a zap_main.py file, 
 which you can run standalone for an interactive REPL or provide a .zap file's path, which will then get ran. This is the last feature aimed to be added before a beta release of
