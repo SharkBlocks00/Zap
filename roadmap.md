@@ -6,73 +6,86 @@
 ---
 
 ## Contents
-- [Const modifier](#const-modifier)
-- [Request statement](#request-statement)
-- [More error handling](#better-errors)
-- [Comments](#comments)
-- [While Loops](#while-loops)
-- [For Loops](#for-loops)
-- [.zap Files](#filing)
+- [Namespaces](#namespaces)
+- [Module Imports](#module-imports)
+- [Local Module Imports](#local-module-imports)
+- [Arrays](#arrays)
+- [Dictionaries](#dictionaries)
+- [Standard Library](#standard-library)
+- [File I/O](#file-i/o)
 
 ---
 
-## Const Modifier
-### - [X] Completed
+## Namespaces
+### - [ ] Completed
 
-"const" will be a keyword you can place before/after a let statement, and will change the mutability allowance of that variable.
-Suggested way to add: Implement a self.mutable in VarDecleration, and when looking up object in environment in interpreter, check
-the mutable value, if True, allow mutability, otherwise throw error.
+Namespaces would provide a method of organising modules, compiler directives and other language
+features easily. It would use the ``::`` namespace operator to access values inside a namespace.
+This feature would come AFTER module imports and local module imports, and the Standard Library.
 
----
+## Module Imports
+### - [ ] Completed
 
-## Request Statement
-### - [X] Completed
-
-"request" as a keyword can be put after a ``let <var_name> = request();`` and any information inside the request parenthesis will be 
-passed into a python ``input()`` statement, and the value assigned to the declared/reassigned variable. Not too sure on implementation methods currently, however, will figure it out.
-
----
-
-## Better Errors
-### - [X] Completed
-
-At the moment, all errors in Zap are not at all descriptive, Ie. ``Exception: Undefined variable x``. This is somewhat descriptive, but 
-line numbers & even just slightly more information will make errors much more developer friendly. Also add in custom error classes
-for example, Zap_Parser_Error, etc as well as terminal colors. This will be not only more developer friendly, but much easier for when debugging Zap itself. Implementation idea: Check atleast the character, what word etc, and add in custom errors in place of all the ``raise Exception(<exception>)``
+A method of importing modules off of the base preprogrammed Zap modules. Possibly with syntax similar to ``let <local_module_name> = require();`` or just simply ``require();``, however ``using();`` as importing syntax
+could also be plausible. This feature would only be for the as aforementioned preprogrammed Zap modules that come with the language. Local module imports would be a later stage, as they could potentially be much 
+easier and cleaner to implement if bootstrapped off of this system.
 
 ---
 
-## Comments
-### - [X] Completed
+## Local Module Imports
+### - [ ] Completed
 
-Comments are basically an essential feature of any good modern programming language. Inline comments may be relatively easy, as we can 
-simple implement a comment ``TokenKind`` and check in the program if there is a Comment TokenKind, and simple ignore all tokens until EOL.
-(Also meaning must change how parsing/interpreting is done slightly to allow for EOL support) And for full line comments, can just check comment token and skip until EOL token. Implementation will be relatively easy to do for the actual comments, however changing parsing/interpreting to support EOL may prove to be slightly harder to do.
-
----
-
-## While Loops
-### - [X] Completed
-
-While loops are a pretty prominent feature of good programming languages, so therefore zap needs them. Syntax kept relatively simple, ie ``while (<condition>) { <body> }``.
-Probably follow similar logic to if statements/functions, however simply checking if the condition is still true on each run of the loop. This will also involve adding in 
-some new keywords, such as ``break``, ``continue`` and possibly even ``return``, although that might be added when functions recieve paramater support.
+This system would be very similar to the previous module imports, however would be for local files. Once predefined module imports are implemented, it would be very easy to implement this. This would be the same syntax as 
+before, however, the local module would always take priority over the preprogrammed module. For example, if importing the module ``math``, and the user has a ``math.zap`` file in their working directory, the code in 
+``math.zap`` would be imported instead of the ``math`` preprogrammed module.
 
 ---
 
-## Foreach Loops
-### - [X] Completed
+## Arrays
+### - [ ] Completed
 
-As with while loops, for loops are also a necessary feature of good programming languages. For loops will also probably follow if statement/function/while loop (if implemented)
-structure, except incrementing for each something. Possible syntax could be something like ``for (char : string) { <body> }`` Implementation of for loops will 
-also probably mean that each ``TokenKind`` has different behaviour when iterated over. For example, ``BOOLEAN`` ``TokenKind`` will be uniterable but say the ``STRING`` will 
-iterate over each character in the string.
+Arrays are a fundamental data structure in every modern programming language, and Zap is lacking
+in these. Arrays would really increase the usefulness of Zap, and should be capable of storing
+any valid Zap value, including strings, numbers, booleans, and potentially even functions.
+Some syntax could be ``let nums = [1,2,3];`` and ``output(nums[0])``, so relatively the same
+as languages such as Python.
 
 ---
 
-## Filing
-### - [X] Completed
+## Dictionaries
+### - [ ] Completed
 
-The filing update would mean that you can create & run .zap files instead of having to type out zap code in the lexer file. We can instead perhaps implement a zap_main.py file, 
-which you can run standalone for an interactive REPL or provide a .zap file's path, which will then get ran. This is the last feature aimed to be added before a beta release of
-sorts is packaged and downloadable. Implementation will be pretty simple, but the REPL may prove to be slightly trickier.
+Dictionaries allow data to be stored as key value pairs. This would make storing structured
+information much easier than relying on variables or arrays. Once again, the syntax would
+be similar to Python with `` let user = {
+  "name": "Bob",
+  "age": 20
+};
+
+output(user["name"])
+
+Future versions of this may add methods for retrieving keys, values and checking if a key
+exists.
+
+---
+
+## Standard Library
+### - [ ] Completed
+
+As Zap grows, a collection of built in modules must be provided to avoid users repeadedly
+implementing commen functionality themselves. These modules would come with the language,
+and be importable through the module import system.
+Some potential candidates for modules may be:
+``let math = require("math");
+  let random = require("random");
+  let string = require("string");
+``
+
+---
+
+## File I/O
+### - [ ] Completed
+
+File input/output would allow Zap programs to read from and write to files on disk. This would
+expand the actually practical applications of the language to things far beyond simple console
+programs.

@@ -1,4 +1,3 @@
-from types import NoneType
 from typing import TypeAlias
 
 from AST import (
