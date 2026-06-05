@@ -26,6 +26,7 @@ from Errors.RuntimeErrors import (
     AssertionFailedError,
     CannotAssignToKeyword,
     NotCallableError,
+    UndefinedVariableError,
 )
 from Errors.TypeErrors import InvalidBinaryOperation
 from Lexer import Lexer
@@ -250,6 +251,8 @@ class Interpreter:
 
             elif isinstance(node, FunctionCall):
                 function = global_environment.get(node.name)
+                # print(function[0].parameters)
+                # print(node.arguments)
                 if not isinstance(function, Function):
                     if isinstance(function, tuple):
                         if not isinstance(function[0], Function):
@@ -258,6 +261,18 @@ class Interpreter:
                     else:
                         raise NotCallableError(node.name)
                 function_environment = Environment(parent=global_environment)
+                if node.arguments is not None:
+                    for param, arg in zip(
+                        function.parameters, node.arguments, strict=True
+                    ):
+                        try:
+                            tmp = global_environment.get(arg)
+                            if tmp is not None:
+                                function_environment.define(param, tmp[0])
+                            else:
+                                function_environment.define(param, arg)
+                        except UndefinedVariableError:
+                            function_environment.define(param, arg)
                 self.interpret_nodes(function.body, function_environment)
 
             elif isinstance(node, WhileLoop):

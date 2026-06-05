@@ -1,3 +1,4 @@
+from types import prepare_class
 from typing import TypeAlias
 
 from AST import (
@@ -538,10 +539,21 @@ class Parser:
             raise ExpectedTokenError("(", token.value if token else "end of input")
         index += 1
         # TODO LATER: Allow paramaters
-        token = tokens[index]
-        if token.kind != TokenKind.SYMBOL or token.value != ")":
-            raise ExpectedTokenError(")", token.value if token else "end of input")
-        index += 1
+        parameters = []
+        while token.kind != TokenKind.SYMBOL or token.value != ")":
+            token = tokens[index]
+            index += 1
+            if (
+                token.kind != TokenKind.SYMBOL
+                or token.value != ","
+                and token.value != ")"
+            ):
+                if token.kind != TokenKind.IDENTIFIER:
+                    raise ExpectedTokenError(
+                        "identifier", token.value if token else "end of input"
+                    ) from None
+                else:
+                    parameters.append(token.value)
         token = tokens[index]
         if token.kind != TokenKind.SYMBOL or token.value != "{":
             raise ExpectedTokenError("{", token.value if token else "end of input")
@@ -553,7 +565,7 @@ class Parser:
             body_nodes.append(stmt)
             token = tokens[index]
         index += 1
-        return Function(func_name, [], body_nodes), index
+        return Function(func_name, parameters, body_nodes), index
 
     def parse_FunctionCall(
         self, tokens: list[Token], index: int
@@ -579,14 +591,33 @@ class Parser:
             raise ExpectedTokenError("(", token.value if token else "end of input")
         index += 1
         token = tokens[index]
-        if token.kind != TokenKind.SYMBOL or token.value != ")":
-            raise ExpectedTokenError(")", token.value if token else "end of input")
+
+        passed_parameters = []
+
+        while token.kind != TokenKind.SYMBOL or token.value != ")":
+            if (
+                token.kind != TokenKind.IDENTIFIER
+                and token.kind != TokenKind.NUMBER
+                and token.kind != TokenKind.STRING
+                and token.kind != TokenKind.BOOLEAN
+            ):
+                if token.kind != TokenKind.SYMBOL or token.value != ",":
+                    raise ExpectedTokenError(
+                        "identifier or comma", token.value if token else "end of input"
+                    )
+                index += 1
+                token = tokens[index]
+                continue
+            passed_parameters.append(token.value)
+            index += 1
+            token = tokens[index]
+
         index += 1
         token = tokens[index]
         if token.kind != TokenKind.SYMBOL or token.value != ";":
             raise ExpectedTokenError(";", token.value if token else "end of input")
         index += 1
-        return FunctionCall(function_name), index
+        return FunctionCall(function_name, passed_parameters), index
 
     def parse_Break(
         self, tokens: list[Token], index: int
