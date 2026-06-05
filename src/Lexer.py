@@ -35,6 +35,7 @@ class Lexer:
             "foreach",
             "const",
             "assert",
+            "require",
         ]
 
         self.line_count: int = -1

@@ -15,6 +15,7 @@ from AST import (
     NumberLiteral,
     OutputStatement,
     RequestStatement,
+    Require,
     Statement,
     StringLiteral,
     VarDeclaration,
@@ -105,6 +106,8 @@ class Parser:
             node, index = self.parse_foreach(self.tokens, index)
         elif token.kind == TokenKind.KEYWORD and token.value == "assert":
             node, index = self.parse_assert(self.tokens, index)
+        elif token.kind == TokenKind.KEYWORD and token.value == "require":
+            node, index = self.parse_require(self.tokens, index)
         else:
             raise UnexpectedTokenError(tokens[index].value)
         return node, index
@@ -606,6 +609,18 @@ class Parser:
             raise ExpectedTokenError(";", token.value if token else "end of input")
         index += 1
         return BreakStatement(), index
+
+    def parse_require(self, tokens: list[Token], index: int) -> tuple[Require, int]:
+        index += 1
+        if index >= len(tokens):
+            raise ParseError("Unexpected end of input while parsing require") from None
+        index += 1
+        token = tokens[index]
+        if token.kind != TokenKind.STRING:
+            raise ExpectedTokenError("string", token.value if token else "end of input")
+        module = token.value
+        index += 3
+        return Require(module), index
 
     def parse(self, tokens: list[Token], index: int) -> tuple[list[ASTStatement], int]:
         """

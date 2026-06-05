@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from AST import (
     AssertStatement,
     BinaryExpression,
@@ -12,6 +14,7 @@ from AST import (
     NumberLiteral,
     OutputStatement,
     RequestStatement,
+    Require,
     StringLiteral,
     VarDeclaration,
     VarReassignment,
@@ -151,6 +154,31 @@ class Interpreter:
 
     BREAK = object()
 
+    def load_module(self, path: str, global_environment):
+        path = path.replace("::", "/")
+        tmp: list[str] = path.split("/")
+
+        library_path = Path(__file__).parent.parent / "modules"
+        libraries = {p.name: p for p in library_path.iterdir() if p.is_dir()}
+        if tmp[0] in libraries:
+            library_path = libraries[tmp[0]]
+            module_path = library_path / tmp[1]
+            module_path = module_path.with_suffix(".py")
+        else:
+            print(tmp[0])
+            print(libraries)
+            module_path = Path(path)
+            module_path = module_path.with_suffix(".py")
+
+        if not module_path.exists():
+            raise ModuleNotFoundError(f"Module not found: {path}")
+        with open(str(module_path), "r") as f:
+            exec(f.read(), namespace := {})
+
+            exports = namespace["exports"]
+            for key, value in exports.items():
+                global_environment.define(key, value)
+
     def interpret_nodes(self, in_nodes, global_environment):
         """
         Execute a sequence of AST nodes in the given global environment.
@@ -257,3 +285,6 @@ class Interpreter:
                         raise AssertionFailedError(node.message)
                     else:
                         raise AssertionFailedError("Assertion failed")
+
+            elif isinstance(node, Require):
+                self.load_module(node.module, global_environment)

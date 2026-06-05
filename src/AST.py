@@ -140,3 +140,8 @@ class Function(Statement):
 
 class BreakStatement(Statement):
     pass
+
+
+class Require(Statement):
+    def __init__(self, module: str):
+        self.module = module
